@@ -12,7 +12,7 @@
 </head>
 <body>
     
-    <!-- PREMIUM HEADER WITH NJTC BRANDING -->
+    <!-- PREMIUM HEADER -->
     <header class="premium-header">
         <div class="container">
             <div class="header-content">
@@ -56,7 +56,7 @@
         </div>
     </header>
 
-    <!-- ANALYTICS DASHBOARD (TOP) -->
+    <!-- ANALYTICS DASHBOARD -->
     <section class="analytics-dashboard" id="analyticsDash">
         <div class="container">
             <div class="analytics-grid">
@@ -89,7 +89,7 @@
     <main class="main-content">
         <div class="container">
             
-            <!-- PREMIUM SEARCH SECTION -->
+            <!-- SEARCH -->
             <section class="search-hero">
                 <div class="search-wrapper premium-glass">
                     <svg class="search-icon-premium" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -113,7 +113,7 @@
                 <div id="searchResults" class="search-autocomplete-premium"></div>
             </section>
 
-            <!-- CATEGORY GRID -->
+            <!-- CATEGORIES -->
             <section id="categorySection" class="category-section-premium">
                 <div class="section-header">
                     <h2 class="section-title-premium">Explore by Category</h2>
@@ -122,7 +122,7 @@
                 <div id="categoryGrid" class="category-grid-premium"></div>
             </section>
 
-            <!-- QUESTIONS SECTION -->
+            <!-- QUESTIONS -->
             <section id="questionsSection" class="questions-section-premium" style="display:none;">
                 <div class="questions-header-premium">
                     <button id="backBtn" class="back-btn-premium">
@@ -136,12 +136,12 @@
                 <div id="questionChips" class="question-chips-premium"></div>
             </section>
 
-            <!-- RESULTS SECTION -->
+            <!-- RESULTS -->
             <section id="resultsSection" class="results-section-premium">
                 <div id="resultsContainer" class="results-container-premium"></div>
             </section>
 
-            <!-- LOADING STATE -->
+            <!-- LOADING -->
             <div id="loadingState" class="loading-state-premium">
                 <div class="loading-spinner-premium">
                     <div class="spinner-ring"></div>
@@ -151,7 +151,7 @@
                 <p class="loading-text">Loading knowledge base...</p>
             </div>
 
-            <!-- EMPTY STATE -->
+            <!-- EMPTY -->
             <div id="emptyState" class="empty-state-premium" style="display:none;">
                 <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="11" cy="11" r="8"/>
@@ -164,7 +164,7 @@
         </div>
     </main>
 
-    <!-- CONNOR BOT ASSISTANT -->
+    <!-- CONNOR BOT -->
     <div id="connorBot" class="connor-bot-premium">
         <div class="connor-avatar-premium connor-avatar">
             <div class="avatar-glow"></div>
@@ -173,6 +173,162 @@
         <div class="connor-tip-premium connor-tip">
             <div class="tip-content-premium">
                 <p id="connorTipText">Hi! I'm Connor. Select a category to get started!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING FEEDBACK BUTTON -->
+    <button id="feedbackFloatingBtn" class="feedback-floating-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>Request Assistance</span>
+    </button>
+
+    <!-- FEEDBACK MODAL -->
+    <div id="feedbackModal" class="feedback-modal" style="display:none;">
+        <div class="feedback-modal-content">
+            <div class="feedback-modal-header">
+                <div class="feedback-icon-large">💬</div>
+                <h2>We're Here to Support You</h2>
+                <p>Your feedback helps us provide immediate assistance</p>
+                <button class="modal-close">×</button>
+            </div>
+            
+            <div class="feedback-modal-body">
+                <div class="current-question-display">
+                    <strong>You're asking about:</strong>
+                    <p id="fb-current-question">General feedback</p>
+                </div>
+                
+                <form id="connorFeedbackForm">
+                    <div class="form-group">
+                        <label for="fb-name">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Your Name
+                        </label>
+                        <input type="text" id="fb-name" required placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                            </svg>
+                            Was Connor helpful?
+                        </label>
+                        <div class="radio-group-premium">
+                            <label class="radio-option">
+                                <input type="radio" name="fb-helpful" value="Yes - Very helpful!" required>
+                                <span class="radio-custom">✅ Yes - Very helpful!</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fb-helpful" value="Somewhat helpful">
+                                <span class="radio-custom">👍 Somewhat helpful</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fb-helpful" value="Not helpful">
+                                <span class="radio-custom">👎 Not helpful</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            Did Connor answer your question successfully?
+                        </label>
+                        <div class="radio-group-premium">
+                            <label class="radio-option">
+                                <input type="radio" name="fb-successful" value="Yes - Got what I needed" required>
+                                <span class="radio-custom">✅ Yes - Got what I needed</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fb-successful" value="Partially - Need more info">
+                                <span class="radio-custom">⚠️ Partially - Need more info</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fb-successful" value="No - Still confused">
+                                <span class="radio-custom">❌ No - Still confused</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group urgent-section">
+                        <label class="urgent-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            Do you need immediate onsite support?
+                        </label>
+                        <div class="radio-group-premium">
+                            <label class="radio-option urgent">
+                                <input type="radio" name="fb-immediate" value="🚨 YES - URGENT: Need help now!" required>
+                                <span class="radio-custom">🚨 YES - URGENT: Need help now!</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fb-immediate" value="No - Just providing feedback">
+                                <span class="radio-custom">No - Just providing feedback</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fb-improvement">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                            </svg>
+                            How can Connor be more helpful? (Optional)
+                        </label>
+                        <textarea id="fb-improvement" rows="3" placeholder="Share your thoughts..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Did you speak with your onsite leader?
+                        </label>
+                        <div class="radio-group-premium">
+                            <label class="radio-option">
+                                <input type="radio" name="fb-onsite" value="Yes - Already contacted them" required>
+                                <span class="radio-custom">✅ Yes - Already contacted them</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fb-onsite" value="No - Didn't need to">
+                                <span class="radio-custom">No - Didn't need to</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="fb-onsite" value="No - But will reach out">
+                                <span class="radio-custom">No - But will reach out</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn-premium">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        Submit Feedback
+                    </button>
+                </form>
+                
+                <div class="feedback-footer">
+                    <p>💙 <strong>We're here for you!</strong> If you marked "URGENT", your onsite leader will be notified immediately.</p>
+                </div>
             </div>
         </div>
     </div>
