@@ -1,21 +1,9 @@
 /* ============================================================================
-   Ask Connor - PRECISION FIXED VERSION
-   🎯 100% ACCURATE COLUMN MAPPING
+   Ask Connor - FINAL PRECISION VERSION
+   🎯 STOPS AT BLANK CATEGORIES - ONLY READS VALID ROWS
    
-   YOUR SHEET STRUCTURE:
-   A = Category (groups questions)
-   B = Question
-   C = Response Summary
-   D = Next Steps
-   E = Keywords
-   F = Source/Link (MUST DISPLAY)
-   G = Owner
-   H = Last Reviewed
-   I = Tags
-   J = User Email (feedback)
-   K = Request Type (feedback)
-   L = Request (feedback)
-   N = Helpful (feedback)
+   YOUR SHEET: 37 questions across 8 categories
+   Rule: If Column A (Category) is blank → STOP reading
    ============================================================================ */
 
 const CONFIG = {
@@ -36,14 +24,14 @@ const CONFIG = {
     },
     
     TIPS: {
-        'i-Ready / Data': '📊 <strong>Data-Driven Excellence:</strong> Color bands guide instruction—red needs immediate attention!',
-        'PEARL / Attendance': '📅 <strong>Consistency = Impact:</strong> ≥90% attendance produces strongest outcomes!',
-        'PEARL / Surveys': '📝 <strong>Your Voice Matters:</strong> Surveys drive coaching support!',
-        'Program Expectations': '⭐ <strong>Excellence:</strong> Quality = relationships + data + consistency!',
+        'i-Ready / Data': '📊 <strong>Data-Driven Excellence:</strong> Color bands guide instruction!',
+        'PEARL / Attendance': '📅 <strong>Consistency = Impact:</strong> ≥90% attendance!',
+        'PEARL / Surveys': '📝 <strong>Your Voice Matters:</strong> Surveys drive support!',
+        'Program Expectations': '⭐ <strong>Excellence:</strong> Quality = relationships + data!',
         'Coaching / Growth': '🌱 <strong>Reflection = Results:</strong> Review data weekly!',
-        'Behavior Management': '🤝 <strong>Relationships First:</strong> Use proximity + positive reinforcement!',
+        'Behavior Management': '🤝 <strong>Relationships First:</strong> Proximity + positive!',
         'Engagement Strategies': '🎮 <strong>Fun + Structure:</strong> Games maximize engagement!',
-        'Instructional Differentiation': '🎯 <strong>Meet Them Where They Are:</strong> Assess gaps, reteach!',
+        'Instructional Differentiation': '🎯 <strong>Meet Them Where They Are:</strong> Assess gaps!',
         'default': '👋 <strong>Welcome!</strong> High-impact tutoring!'
     }
 };
@@ -94,7 +82,7 @@ async function fetchData() {
         if (!text || !text.trim()) throw new Error('Empty response');
         
         const data = parseCSV(text);
-        console.log(`✅ Loaded ${data.length} questions`);
+        console.log(`✅ Loaded ${data.length} valid questions`);
         return data;
     } catch (e) {
         console.error('❌ Fetch failed:', e);
@@ -106,38 +94,42 @@ function parseCSV(text) {
     const lines = text.split(/\r?\n/).filter(l => l.trim());
     if (lines.length < 2) throw new Error('No data rows');
     
-    // Skip header row
     const data = [];
     
+    // Skip header row (row 0)
     for (let i = 1; i < lines.length; i++) {
         const cols = parseLine(lines[i]);
         
-        // PRECISE COLUMN MAPPING (0-indexed)
-        // A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8
-        const category = (cols[0] || '').trim();      // Column A
-        const question = (cols[1] || '').trim();      // Column B
-        const summary = (cols[2] || '').trim();       // Column C
-        const nextSteps = (cols[3] || '').trim();     // Column D
-        const keywords = (cols[4] || '').trim();      // Column E
-        const source = (cols[5] || '').trim();        // Column F
-        const owner = (cols[6] || '').trim();         // Column G
-        const lastReviewed = (cols[7] || '').trim();  // Column H
-        const tags = (cols[8] || '').trim();          // Column I
+        // CRITICAL: Column A (index 0) must have a category
+        const category = (cols[0] || '').trim();
         
-        // Only add if we have both category AND question
-        if (category && question) {
-            data.push({
-                category,
-                question,
-                summary,
-                nextSteps,
-                keywords,
-                source,
-                owner,
-                lastReviewed,
-                tags
-            });
+        // STOP IF NO CATEGORY - this prevents reading extra rows
+        if (!category) {
+            console.log(`⏹️ Stopped at row ${i+1} - no category found`);
+            break;
         }
+        
+        // Column B (index 1) must have a question
+        const question = (cols[1] || '').trim();
+        
+        // Only include rows with BOTH category AND question
+        if (!question) {
+            console.log(`⚠️ Skipped row ${i+1} - has category "${category}" but no question`);
+            continue;
+        }
+        
+        // PRECISE COLUMN MAPPING (0-indexed)
+        data.push({
+            category: category,                    // A (0)
+            question: question,                    // B (1)
+            summary: (cols[2] || '').trim(),       // C (2)
+            nextSteps: (cols[3] || '').trim(),     // D (3)
+            keywords: (cols[4] || '').trim(),      // E (4)
+            source: (cols[5] || '').trim(),        // F (5)
+            owner: (cols[6] || '').trim(),         // G (6)
+            lastReviewed: (cols[7] || '').trim(),  // H (7)
+            tags: (cols[8] || '').trim()           // I (8)
+        });
     }
     
     return data;
@@ -190,14 +182,14 @@ function process(data) {
         state.categories[cat].push(item);
     });
     
-    // Sort categories
+    // Sort categories alphabetically
     const sorted = {};
     Object.keys(state.categories).sort().forEach(k => {
         sorted[k] = state.categories[k];
     });
     state.categories = sorted;
     
-    console.log(`📊 Categories found:`, Object.keys(state.categories));
+    console.log(`📊 Categories: ${Object.keys(state.categories).join(', ')}`);
     console.log(`📊 Total questions: ${data.length}`);
 }
 
@@ -370,7 +362,7 @@ function showRes(results) {
     
     el.resContainer.innerHTML = html;
     
-    // Attach event listeners to feedback buttons
+    // Attach event listeners
     document.querySelectorAll('.feedback-btn.helpful, .feedback-btn.not-helpful').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -413,12 +405,10 @@ function parseResources(text) {
     if (!text) return [];
     const resources = [];
     
-    // Split by newlines
     text.split(/\n/).forEach(line => {
         line = line.trim();
         if (!line) return;
         
-        // Check if line contains URL
         const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
         if (urlMatch) {
             const url = urlMatch[0];
