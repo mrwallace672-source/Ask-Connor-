@@ -185,37 +185,71 @@ const elements = {
 // ==========================================================================
 
 /**
- * Fetch data from Google Sheets using GViz JSON endpoint (primary)
- * Falls back to CSV if GViz fails
+ * Fetch data from Google Sheets using multiple endpoint strategies
  */
 async function fetchSheetData() {
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/e/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`;
-    const csvUrl = `https://docs.google.com/spreadsheets/d/e/${CONFIG.SHEET_ID}/pub?output=csv&gid=${CONFIG.GID}`;
+    // The published ID from your pubhtml URL
+    const publishedId = CONFIG.SHEET_ID;
     
-    try {
-        // Try GViz JSON first (cleaner parsing)
-        const response = await fetch(gvizUrl);
-        const text = await response.text();
+    // Try multiple endpoint formats
+    const endpoints = [
+        // GViz JSON endpoint (best for parsing)
+        `https://docs.google.com/spreadsheets/d/e/${publishedId}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`,
+        // CSV export endpoint
+        `https://docs.google.com/spreadsheets/d/e/${publishedId}/pub?output=csv&gid=${CONFIG.GID}`,
+        // Alternative CSV format
+        `https://docs.google.com/spreadsheets/d/e/${publishedId}/export?format=csv&gid=${CONFIG.GID}`
+    ];
+    
+    console.log('🔍 Attempting to fetch from Google Sheets...');
+    
+    // Try each endpoint in sequence
+    for (let i = 0; i < endpoints.length; i++) {
+        const url = endpoints[i];
+        const method = url.includes('gviz') ? 'GViz JSON' : 'CSV';
         
-        // GViz returns JSONP, extract JSON
-        const jsonString = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/)?.[1];
-        if (!jsonString) throw new Error('Invalid GViz response');
-        
-        const data = JSON.parse(jsonString);
-        return parseGVizData(data);
-    } catch (error) {
-        console.warn('GViz fetch failed, falling back to CSV:', error);
-        
-        // Fallback to CSV
         try {
-            const response = await fetch(csvUrl);
+            console.log(`📡 Trying ${method}: ${url}`);
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const text = await response.text();
-            return parseCSVData(text);
-        } catch (csvError) {
-            console.error('Both fetch methods failed:', csvError);
-            throw new Error('Unable to load data from Google Sheets');
+            
+            if (!text || text.trim().length === 0) {
+                throw new Error('Empty response received');
+            }
+            
+            // Parse based on endpoint type
+            if (url.includes('gviz')) {
+                // GViz returns JSONP, extract JSON
+                const jsonString = text.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/)?.[1];
+                if (!jsonString) throw new Error('Invalid GViz response format');
+                
+                const data = JSON.parse(jsonString);
+                console.log('✅ Successfully parsed GViz data:', data);
+                return parseGVizData(data);
+            } else {
+                // CSV format
+                console.log('✅ Successfully fetched CSV data');
+                return parseCSVData(text);
+            }
+            
+        } catch (error) {
+            console.warn(`⚠️ ${method} fetch failed:`, error.message);
+            
+            // If this was the last endpoint, throw the error
+            if (i === endpoints.length - 1) {
+                throw new Error(`All fetch methods failed. Last error: ${error.message}`);
+            }
+            // Otherwise continue to next endpoint
+            continue;
         }
     }
+    
+    throw new Error('Unable to load data from Google Sheets');
 }
 
 /**
@@ -251,37 +285,70 @@ function parseGVizData(data) {
  * Parse CSV format
  */
 function parseCSVData(csvText) {
-    const lines = csvText.split('\n');
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    console.log('📊 Parsing CSV data...');
+    const lines = csvText.split('\n').filter(line => line.trim());
     
-    return lines.slice(1)
-        .filter(line => line.trim())
-        .map(line => {
-            const values = parseCSVLine(line);
-            const row = {};
-            
-            headers.forEach((header, idx) => {
-                const key = header.toLowerCase().replace(/\s+/g, '').replace(/\//g, '');
-                row[key] = values[idx]?.replace(/"/g, '') || '';
-            });
-            
-            return {
-                category: row.category || '',
-                question: row.question || '',
-                summary: row.responsesummary || '',
-                nextSteps: row.nextsteps || '',
-                keywords: row.keywords || '',
-                source: row.sourcelink || '',
-                owner: row.owner || '',
-                lastReviewed: row.lastreviewed || '',
-                tags: row.tags || ''
-            };
+    if (lines.length < 2) {
+        throw new Error('CSV has no data rows');
+    }
+    
+    // Parse header row
+    const headerLine = lines[0];
+    const headers = parseCSVLine(headerLine);
+    
+    console.log('📋 CSV Headers:', headers);
+    
+    // Map headers to field names (flexible matching)
+    const headerMap = {};
+    headers.forEach((header, idx) => {
+        const normalized = header.toLowerCase().trim().replace(/[\/\s]+/g, '');
+        
+        // Map various possible header names to our fields
+        if (normalized.includes('category')) headerMap.category = idx;
+        else if (normalized.includes('question')) headerMap.question = idx;
+        else if (normalized.includes('response') || normalized.includes('summary')) headerMap.summary = idx;
+        else if (normalized.includes('next') && normalized.includes('step')) headerMap.nextSteps = idx;
+        else if (normalized.includes('keyword')) headerMap.keywords = idx;
+        else if (normalized.includes('source') || normalized.includes('link')) headerMap.source = idx;
+        else if (normalized.includes('owner')) headerMap.owner = idx;
+        else if (normalized.includes('review')) headerMap.lastReviewed = idx;
+        else if (normalized.includes('tag')) headerMap.tags = idx;
+    });
+    
+    console.log('🗺️ Header mapping:', headerMap);
+    
+    // Parse data rows
+    const data = lines.slice(1)
+        .map((line, rowIdx) => {
+            try {
+                const values = parseCSVLine(line);
+                
+                const row = {
+                    category: values[headerMap.category]?.trim() || '',
+                    question: values[headerMap.question]?.trim() || '',
+                    summary: values[headerMap.summary]?.trim() || '',
+                    nextSteps: values[headerMap.nextSteps]?.trim() || '',
+                    keywords: values[headerMap.keywords]?.trim() || '',
+                    source: values[headerMap.source]?.trim() || '',
+                    owner: values[headerMap.owner]?.trim() || '',
+                    lastReviewed: values[headerMap.lastReviewed]?.trim() || '',
+                    tags: values[headerMap.tags]?.trim() || ''
+                };
+                
+                return row;
+            } catch (error) {
+                console.warn(`⚠️ Error parsing row ${rowIdx + 2}:`, error);
+                return null;
+            }
         })
-        .filter(row => row.category && row.question);
+        .filter(row => row && row.category && row.question);
+    
+    console.log(`✅ Successfully parsed ${data.length} rows from CSV`);
+    return data;
 }
 
 /**
- * Parse CSV line handling quoted commas
+ * Parse CSV line handling quoted commas and newlines
  */
 function parseCSVLine(line) {
     const result = [];
@@ -290,19 +357,37 @@ function parseCSVLine(line) {
     
     for (let i = 0; i < line.length; i++) {
         const char = line[i];
+        const nextChar = line[i + 1];
         
         if (char === '"') {
-            inQuotes = !inQuotes;
+            // Handle escaped quotes ("")
+            if (inQuotes && nextChar === '"') {
+                current += '"';
+                i++; // Skip next quote
+            } else {
+                inQuotes = !inQuotes;
+            }
         } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
+            // End of field
+            result.push(current);
             current = '';
         } else {
             current += char;
         }
     }
     
-    result.push(current.trim());
-    return result;
+    // Push last field
+    result.push(current);
+    
+    // Clean up values (remove surrounding quotes, trim)
+    return result.map(val => {
+        let cleaned = val.trim();
+        // Remove surrounding quotes if present
+        if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+            cleaned = cleaned.slice(1, -1);
+        }
+        return cleaned;
+    });
 }
 
 // ==========================================================================
