@@ -1,15 +1,14 @@
 /* ============================================================================
    Ask Connor - NJTC Knowledge Base
-   🏆 ULTIMATE PREMIUM VERSION - 100% COMPLETE
+   🏆 COMPLETE FINAL VERSION WITH ANALYTICS & CHARTS
    
-   ✅ Real-time Google Sheets integration
-   ✅ Feedback writes to columns J (User Email), K (Request Type), L (Request)
-   ✅ Support hierarchy with escalation paths
-   ✅ Auto-refresh every 5 minutes with notifications
-   ✅ Role-based intelligent guidance
-   ✅ Category-specific support routing
-   ✅ "Who to Contact" recommendations
-   ✅ Professional educator-optimized UX
+   Features:
+   - Real-time Google Sheets (A-I columns)
+   - Feedback system (J, K, L, N columns)
+   - Thumbs up/down tracking
+   - Category usage analytics
+   - Most asked questions charts
+   - Visual dashboards
    ============================================================================ */
 
 const CONFIG = {
@@ -17,14 +16,13 @@ const CONFIG = {
     PUBLISHED_ID: '2PACX-1vSdb5JPPXur2DPKofkB_EjGw0YD3Ia6kMZsM_U_PFOa0RQ2WaVmpEtDONfNWjkPRbesWSvq_7dVQ_QC',
     GID: '525529251',
     FEEDBACK_URL: 'https://script.google.com/macros/s/AKfycbz6FJpD1dWrJikaav46UfxrTkkZkc8VEXo2JhBBLVi7g3GmxeRUGzwJQu7tvVyYo4onIw/exec',
-    AUTO_REFRESH: 300000, // 5 minutes
+    AUTO_REFRESH: 300000,
     
-    // Support Contact Hierarchy (Educator-Optimized)
     SUPPORT: {
         'i-Ready / Data': {
             first: 'Onsite Leader',
             firstHelp: 'Understanding reports, scholar progress, color bands, i-Ready navigation',
-            second: 'Program Manager', 
+            second: 'Program Manager',
             secondHelp: 'Technical issues, system access, account problems'
         },
         'PEARL / Attendance': {
@@ -72,15 +70,15 @@ const CONFIG = {
     },
     
     TIPS: {
-        'i-Ready / Data': '📊 <strong>Data-Driven Excellence:</strong> Color bands guide instruction—red domains need immediate attention. Targeted instruction produces 3x faster growth!',
-        'PEARL / Attendance': '📅 <strong>Consistency = Impact:</strong> ≥90% attendance produces strongest outcomes. High-dosage tutoring (3+ sessions/week) is research-backed gold standard!',
-        'PEARL / Surveys': '📝 <strong>Your Voice Matters:</strong> Surveys drive coaching support. Aim for 4+ scores. Use Comment Bank to flag urgent issues!',
-        'Program Expectations': '⭐ <strong>Excellence:</strong> Quality = relationships + data + consistency. Arrive prepared, communicate proactively, maintain 90%+ attendance!',
-        'Coaching / Growth': '🌱 <strong>Reflection = Results:</strong> Review data weekly. Use coaching to strengthen strategies!',
-        'Behavior Management': '🤝 <strong>Relationships First:</strong> Use proximity + positive reinforcement. Keep redirections private!',
-        'Engagement Strategies': '🎮 <strong>Fun + Structure:</strong> Games maximize engagement. Small groups (3-4), activities under 5 min!',
-        'Instructional Differentiation': '🎯 <strong>Meet Them Where They Are:</strong> Assess gaps, reteach foundations, adjust real-time!',
-        'default': '👋 <strong>Welcome!</strong> High-impact tutoring = <strong>relationships + data + consistency + small groups</strong>!'
+        'i-Ready / Data': '📊 <strong>Data-Driven Excellence:</strong> Color bands guide instruction—red domains need immediate attention!',
+        'PEARL / Attendance': '📅 <strong>Consistency = Impact:</strong> ≥90% attendance produces strongest outcomes!',
+        'PEARL / Surveys': '📝 <strong>Your Voice Matters:</strong> Surveys drive coaching support. Aim for 4+ scores!',
+        'Program Expectations': '⭐ <strong>Excellence:</strong> Quality = relationships + data + consistency!',
+        'Coaching / Growth': '🌱 <strong>Reflection = Results:</strong> Review data weekly!',
+        'Behavior Management': '🤝 <strong>Relationships First:</strong> Use proximity + positive reinforcement!',
+        'Engagement Strategies': '🎮 <strong>Fun + Structure:</strong> Games maximize engagement!',
+        'Instructional Differentiation': '🎯 <strong>Meet Them Where They Are:</strong> Assess gaps, reteach foundations!',
+        'default': '👋 <strong>Welcome!</strong> High-impact tutoring = relationships + data + consistency!'
     }
 };
 
@@ -92,8 +90,7 @@ const state = {
     role: localStorage.getItem('user_role'),
     email: localStorage.getItem('user_email') || '',
     refresh: Date.now(),
-    search: '',
-    index: -1
+    analytics: JSON.parse(localStorage.getItem('ask_connor_analytics') || '{"categoryViews":{},"questionViews":{},"totalViews":0,"feedback":{"positive":0,"negative":0}}')
 };
 
 const el = {
@@ -113,17 +110,21 @@ const el = {
     refresh: document.getElementById('refreshBtn'),
     tip: document.getElementById('connorTipText'),
     tipBox: document.querySelector('.connor-tip'),
-    role: document.getElementById('roleDisplay')
+    role: document.getElementById('roleDisplay'),
+    analyticsBtn: document.getElementById('analyticsBtn'),
+    analyticsModal: document.getElementById('analyticsModal'),
+    totalViews: document.getElementById('totalViews'),
+    topCategory: document.getElementById('topCategory'),
+    chartBody: document.getElementById('chartBody')
 };
 
 async function fetchData() {
     console.log('🔍 Fetching...');
     const strats = [
         {n:'CSV',u:`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=csv&gid=${CONFIG.GID}`,p:'csv'},
-        {n:'GViz',u:`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`,p:'gviz'},
-        {n:'PubCSV',u:`https://docs.google.com/spreadsheets/d/e/${CONFIG.PUBLISHED_ID}/pub?output=csv&gid=${CONFIG.GID}`,p:'csv'},
-        {n:'PubGViz',u:`https://docs.google.com/spreadsheets/d/e/${CONFIG.PUBLISHED_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`,p:'gviz'}
+        {n:'GViz',u:`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`,p:'gviz'}
     ];
+    
     for(const s of strats){
         try{
             console.log(`📡 ${s.n}`);
@@ -131,14 +132,7 @@ async function fetchData() {
             if(!r.ok)throw new Error(`HTTP ${r.status}`);
             const t=await r.text();
             if(!t||!t.trim())throw new Error('Empty');
-            let d;
-            if(s.p==='gviz'){
-                const m=t.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/);
-                if(!m)throw new Error('Bad GViz');
-                d=parseGViz(JSON.parse(m[1]));
-            }else{
-                d=parseCSV(t);
-            }
+            let d = s.p==='csv' ? parseCSV(t) : parseGViz(t);
             if(!d||d.length===0)throw new Error('No data');
             console.log(`✅ ${s.n}: ${d.length} questions`);
             return d;
@@ -147,14 +141,17 @@ async function fetchData() {
     throw new Error('All failed');
 }
 
-function parseGViz(data){
+function parseGViz(t){
+    const m=t.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/);
+    if(!m)throw new Error('Bad GViz');
+    const data=JSON.parse(m[1]);
     const rows=data.table.rows,cols=data.table.cols,cm={};
     cols.forEach((col,i)=>{
         const l=(col.label||'').toLowerCase().replace(/[\/\s]/g,'');
         if(l.includes('category'))cm.cat=i;
         else if(l.includes('question'))cm.q=i;
         else if(l.includes('response')||l.includes('summary'))cm.sum=i;
-        else if(l.includes('next')&&l.includes('step'))cm.next=i;
+        else if(l.includes('next'))cm.next=i;
         else if(l.includes('keyword'))cm.key=i;
         else if(l.includes('source')||l.includes('link'))cm.src=i;
         else if(l.includes('owner'))cm.own=i;
@@ -164,15 +161,15 @@ function parseGViz(data){
     return rows.map(r=>{
         const c=r.c||[];
         return{
-            category:(c[cm.cat]?.v||c[cm.cat]?.f||'').toString().trim(),
-            question:(c[cm.q]?.v||c[cm.q]?.f||'').toString().trim(),
-            summary:(c[cm.sum]?.v||c[cm.sum]?.f||'').toString().trim(),
-            nextSteps:(c[cm.next]?.v||c[cm.next]?.f||'').toString().trim(),
-            keywords:(c[cm.key]?.v||c[cm.key]?.f||'').toString().trim(),
-            source:(c[cm.src]?.v||c[cm.src]?.f||'').toString().trim(),
-            owner:(c[cm.own]?.v||c[cm.own]?.f||'').toString().trim(),
-            lastReviewed:(c[cm.rev]?.v||c[cm.rev]?.f||'').toString().trim(),
-            tags:(c[cm.tag]?.v||c[cm.tag]?.f||'').toString().trim()
+            category:(c[cm.cat]?.v||'').toString().trim(),
+            question:(c[cm.q]?.v||'').toString().trim(),
+            summary:(c[cm.sum]?.v||'').toString().trim(),
+            nextSteps:(c[cm.next]?.v||'').toString().trim(),
+            keywords:(c[cm.key]?.v||'').toString().trim(),
+            source:(c[cm.src]?.v||'').toString().trim(),
+            owner:(c[cm.own]?.v||'').toString().trim(),
+            lastReviewed:(c[cm.rev]?.v||'').toString().trim(),
+            tags:(c[cm.tag]?.v||'').toString().trim()
         };
     }).filter(r=>r.category&&r.question);
 }
@@ -186,14 +183,14 @@ function parseCSV(t){
         if(hl.includes('category'))hm.cat=i;
         else if(hl.includes('question'))hm.q=i;
         else if(hl.includes('response')||hl.includes('summary'))hm.sum=i;
-        else if(hl.includes('next')&&hl.includes('step'))hm.next=i;
+        else if(hl.includes('next'))hm.next=i;
         else if(hl.includes('keyword'))hm.key=i;
         else if(hl.includes('source')||hl.includes('link'))hm.src=i;
         else if(hl.includes('owner'))hm.own=i;
         else if(hl.includes('review'))hm.rev=i;
         else if(hl.includes('tag'))hm.tag=i;
     });
-    const d=[];
+    const data=[];
     for(let i=1;i<lines.length;i++){
         try{
             const v=parseLine(lines[i]);
@@ -208,10 +205,10 @@ function parseCSV(t){
                 lastReviewed:(v[hm.rev]||'').trim(),
                 tags:(v[hm.tag]||'').trim()
             };
-            if(row.category&&row.question)d.push(row);
+            if(row.category&&row.question)data.push(row);
         }catch(e){console.warn(`Skip ${i}`);}
     }
-    return d;
+    return data;
 }
 
 function parseLine(line){
@@ -221,16 +218,11 @@ function parseLine(line){
         if(ch==='"'){
             if(q&&nx==='"'){c+='"';i++;}
             else q=!q;
-        }else if(ch===','&&!q){
-            r.push(c);c='';
-        }else{c+=ch;}
+        }else if(ch===','&&!q){r.push(c);c='';}
+        else{c+=ch;}
     }
     r.push(c);
-    return r.map(v=>{
-        let cl=v.trim();
-        if(cl.startsWith('"')&&cl.endsWith('"'))cl=cl.slice(1,-1);
-        return cl.replace(/""/g,'"');
-    });
+    return r.map(v=>{let cl=v.trim();if(cl.startsWith('"')&&cl.endsWith('"'))cl=cl.slice(1,-1);return cl.replace(/""/g,'"');});
 }
 
 function process(data){
@@ -247,13 +239,46 @@ function process(data){
     console.log(`📊 ${data.length} Q, ${Object.keys(state.categories).length} cats`);
 }
 
+function trackCategoryView(cat){
+    if(!state.analytics.categoryViews[cat])state.analytics.categoryViews[cat]=0;
+    state.analytics.categoryViews[cat]++;
+    state.analytics.totalViews++;
+    saveAnalytics();
+    updateAnalyticsDashboard();
+}
+
+function trackQuestionView(q){
+    if(!state.analytics.questionViews[q])state.analytics.questionViews[q]=0;
+    state.analytics.questionViews[q]++;
+    saveAnalytics();
+}
+
+function saveAnalytics(){
+    localStorage.setItem('ask_connor_analytics',JSON.stringify(state.analytics));
+}
+
+function updateAnalyticsDashboard(){
+    if(el.totalViews)el.totalViews.textContent=state.analytics.totalViews;
+    const topCat=Object.entries(state.analytics.categoryViews).sort((a,b)=>b[1]-a[1])[0];
+    if(el.topCategory&&topCat)el.topCategory.textContent=topCat[0];
+}
+
 function renderCats(){
     const html=Object.entries(state.categories).map(([cat,items],i)=>{
         const icon=cat.includes('/')?cat.split('/')[0].trim()[0].toUpperCase():cat[0].toUpperCase();
-        return`<div class="category-card"data-category="${cat}"style="animation-delay:${i*0.05}s"><div class="category-icon">${icon}</div><div class="category-name">${cat}</div><div class="category-count">${items.length} question${items.length!==1?'s':''}</div></div>`;
+        const views=state.analytics.categoryViews[cat]||0;
+        return`<div class="category-card"data-category="${cat}"style="animation-delay:${i*0.05}s">
+            <div class="category-icon">${icon}</div>
+            <div class="category-name">${cat}</div>
+            <div class="category-count">${items.length} question${items.length!==1?'s':''}</div>
+            ${views>0?`<div class="category-views">👁️ ${views} views</div>`:''}
+        </div>`;
     }).join('');
     el.catGrid.innerHTML=html;
-    document.querySelectorAll('.category-card').forEach(c=>c.addEventListener('click',()=>showCat(c.dataset.category)));
+    document.querySelectorAll('.category-card').forEach(c=>c.addEventListener('click',()=>{
+        trackCategoryView(c.dataset.category);
+        showCat(c.dataset.category);
+    }));
 }
 
 function showCat(cat){
@@ -265,10 +290,18 @@ function showCat(cat){
     el.resContainer.innerHTML='';
     const html=qs.map((item,i)=>{
         const idx=state.data.indexOf(item);
-        return`<button class="question-chip"data-index="${idx}"style="animation-delay:${i*0.04}s">${item.question}</button>`;
+        const views=state.analytics.questionViews[item.question]||0;
+        return`<button class="question-chip"data-index="${idx}"style="animation-delay:${i*0.04}s">
+            ${item.question}
+            ${views>0?`<span class="question-views">👁️ ${views}</span>`:''}
+        </button>`;
     }).join('');
     el.qChips.innerHTML=html;
-    document.querySelectorAll('.question-chip').forEach(c=>c.addEventListener('click',()=>showRes([state.data[parseInt(c.dataset.index)]])));
+    document.querySelectorAll('.question-chip').forEach(c=>c.addEventListener('click',()=>{
+        const idx=parseInt(c.dataset.index);
+        trackQuestionView(state.data[idx].question);
+        showRes([state.data[idx]]);
+    }));
     updateTip(cat);
     window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -303,13 +336,13 @@ function showRes(results){
             <div class="feedback-section">
                 <div class="feedback-question">Was this helpful?</div>
                 <div class="feedback-buttons">
-                    <button class="feedback-btn helpful"onclick="submitFB('${esc(item.question)}','helpful')">
+                    <button class="feedback-btn helpful"onclick="submitHelpful('${esc(item.question)}',true)">
                         <svg viewBox="0 0 24 24"fill="none"stroke="currentColor"stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
-                        Helpful
+                        👍 Helpful
                     </button>
-                    <button class="feedback-btn not-helpful"onclick="submitFB('${esc(item.question)}','not-helpful')">
+                    <button class="feedback-btn not-helpful"onclick="submitHelpful('${esc(item.question)}',false)">
                         <svg viewBox="0 0 24 24"fill="none"stroke="currentColor"stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
-                        Not Helpful
+                        👎 Not Helpful
                     </button>
                     <button class="feedback-btn request"onclick="showForm(${i})">💬 Request Help</button>
                 </div>
@@ -343,6 +376,9 @@ function parseRes(t){
             if(url&&isUrl(url))r.push({label:label||'Resource',url});
         }else if(isUrl(line)){
             r.push({label:'View Resource',url:line});
+        }else if(line.match(/https?:\/\//)){
+            const match=line.match(/(https?:\/\/[^\s]+)/);
+            if(match)r.push({label:line.replace(match[0],'').trim()||'Resource',url:match[0]});
         }
     });
     return r;
@@ -353,12 +389,19 @@ function isUrl(s){
     catch{return false;}
 }
 
-async function submitFB(q,type){
-    const email=state.email||'Not provided';
-    const reqType=type==='helpful'?'Positive Feedback':'Needs Improvement';
-    const req=type==='helpful'?'✅ This answer was helpful':'⚠️ This answer needs improvement';
-    await sendFB(q,email,reqType,req);
-    notify(type==='helpful'?'✅ Thanks!':'📝 We\'ll improve this!','success');
+async function submitHelpful(q,helpful){
+    const helpfulText=helpful?'Yes':'No';
+    const feedbackType=helpful?'Positive Feedback':'Negative Feedback';
+    
+    if(helpful){
+        state.analytics.feedback.positive++;
+    }else{
+        state.analytics.feedback.negative++;
+    }
+    saveAnalytics();
+    
+    await sendFB(q,state.email||'Not provided',feedbackType,helpful?'✅ This was helpful':'⚠️ This needs improvement',helpfulText);
+    notify(helpful?'✅ Thanks for the feedback!':'📝 We\'ll improve this!','success');
 }
 
 function showForm(i){
@@ -382,13 +425,13 @@ async function submitDetail(q,i){
         localStorage.setItem('user_email',email);
     }
     
-    await sendFB(q,email,'Help Request',reqText);
+    await sendFB(q,email,'Help Request',reqText,'');
     textEl.value='';
     document.getElementById(`fb-form-${i}`).style.display='none';
     notify('✅ Request submitted!','success');
 }
 
-async function sendFB(question,email,reqType,req){
+async function sendFB(question,email,reqType,req,helpful){
     try{
         await fetch(CONFIG.FEEDBACK_URL,{
             method:'POST',
@@ -399,10 +442,13 @@ async function sendFB(question,email,reqType,req){
                 userEmail:email,
                 requestType:reqType,
                 request:req,
+                helpful:helpful,
                 timestamp:new Date().toISOString(),
-                role:state.role||'Not specified'
+                role:state.role||'Not specified',
+                category:state.current||''
             })
         });
+        console.log('✅ Feedback sent');
     }catch(e){
         console.error('Feedback error:',e);
     }
@@ -414,10 +460,67 @@ function notify(msg,type){
     n.textContent=msg;
     n.style.cssText=`position:fixed;top:100px;right:20px;background:${type==='success'?'#28a745':type==='error'?'#dc3545':'#ffc107'};color:white;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:10000;animation:slideIn 0.3s;font-family:var(--font-display);font-weight:600`;
     document.body.appendChild(n);
-    setTimeout(()=>{
-        n.style.animation='slideOut 0.3s';
-        setTimeout(()=>n.remove(),300);
-    },3000);
+    setTimeout(()=>{n.style.animation='slideOut 0.3s';setTimeout(()=>n.remove(),300);},3000);
+}
+
+function showAnalytics(){
+    if(!el.analyticsModal)return;
+    el.analyticsModal.style.display='flex';
+    renderCharts();
+}
+
+function hideAnalytics(){
+    if(!el.analyticsModal)el.analyticsModal.style.display='none';
+}
+
+function renderCharts(){
+    if(!el.chartBody)return;
+    const catData=Object.entries(state.analytics.categoryViews).sort((a,b)=>b[1]-a[1]);
+    const qData=Object.entries(state.analytics.questionViews).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    
+    const catHTML=catData.map(([cat,views])=>{
+        const max=Math.max(...catData.map(c=>c[1]));
+        const pct=(views/max)*100;
+        return`<div class="chart-bar">
+            <div class="chart-bar-label"><span>${cat}</span><span>${views}</span></div>
+            <div class="chart-bar-fill"style="width:${pct}%"></div>
+        </div>`;
+    }).join('');
+    
+    const qHTML=qData.map(([q,views])=>{
+        const max=Math.max(...qData.map(c=>c[1]));
+        const pct=(views/max)*100;
+        return`<div class="chart-bar">
+            <div class="chart-bar-label"><span>${q.slice(0,40)}...</span><span>${views}</span></div>
+            <div class="chart-bar-fill"style="width:${pct}%"></div>
+        </div>`;
+    }).join('');
+    
+    el.chartBody.innerHTML=`
+        <div class="chart-section">
+            <h3>📊 Category Views</h3>
+            ${catHTML||'<p>No data yet</p>'}
+        </div>
+        <div class="chart-section">
+            <h3>🔥 Top Questions</h3>
+            ${qHTML||'<p>No data yet</p>'}
+        </div>
+        <div class="chart-section">
+            <h3>💬 Feedback Summary</h3>
+            <div class="feedback-summary">
+                <div class="feedback-stat positive">
+                    <div class="feedback-icon">👍</div>
+                    <div class="feedback-count">${state.analytics.feedback.positive}</div>
+                    <div class="feedback-label">Helpful</div>
+                </div>
+                <div class="feedback-stat negative">
+                    <div class="feedback-icon">👎</div>
+                    <div class="feedback-count">${state.analytics.feedback.negative}</div>
+                    <div class="feedback-label">Not Helpful</div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function search(q){
@@ -444,8 +547,11 @@ function renderSearch(r){
     const html=r.map(i=>`<div class="search-result-item"data-index="${state.data.indexOf(i)}"><div class="search-result-question">${i.question}</div><div class="search-result-category">${i.category}</div></div>`).join('');
     el.results.innerHTML=html;
     el.results.classList.add('active');
-    state.index=-1;
-    document.querySelectorAll('.search-result-item').forEach(i=>i.addEventListener('click',()=>selectSearch(state.data[parseInt(i.dataset.index)])));
+    document.querySelectorAll('.search-result-item').forEach(i=>i.addEventListener('click',()=>{
+        const item=state.data[parseInt(i.dataset.index)];
+        trackQuestionView(item.question);
+        selectSearch(item);
+    }));
 }
 
 function selectSearch(item){
@@ -506,7 +612,19 @@ function initEvents(){
         notify('✅ Refreshed!','success');
     });
     
-    document.querySelector('.connor-avatar').addEventListener('click',()=>el.tipBox.classList.toggle('show'));
+    if(document.querySelector('.connor-avatar')){
+        document.querySelector('.connor-avatar').addEventListener('click',()=>el.tipBox.classList.toggle('show'));
+    }
+    
+    if(el.analyticsBtn){
+        el.analyticsBtn.addEventListener('click',showAnalytics);
+    }
+    
+    if(el.analyticsModal){
+        el.analyticsModal.addEventListener('click',e=>{
+            if(e.target===el.analyticsModal)hideAnalytics();
+        });
+    }
     
     if(state.role&&el.role){
         const names={'tutor':'Tutor','substitute':'Substitute','coach':'Coach','site-lead':'Site Lead'};
@@ -526,6 +644,7 @@ async function load(){
         const data=await fetchData();
         process(data);
         renderCats();
+        updateAnalyticsDashboard();
         
         el.loading.style.display='none';
         el.catSec.style.display='block';
@@ -556,5 +675,5 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 
 const style=document.createElement('style');
-style.textContent=`@keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}`;
+style.textContent=`@keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}.category-views,.question-views{font-size:0.75rem;color:var(--gray-600);margin-top:0.5rem;}`;
 document.head.appendChild(style);
