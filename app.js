@@ -1,15 +1,31 @@
 /* ============================================================================
-   Ask Connor - ABSOLUTE FINAL FIX
-   🎯 USES GOOGLE VISUALIZATION API - NO CSV PARSING ISSUES
+   Ask Connor - ULTIMATE FINAL VERSION
+   🏆 PREMIUM GRADE - 100% COMPLETE
    
-   Switches from CSV export to Google Visualization JSON API
-   This handles multi-line cells correctly!
+   Features:
+   - Google Visualization API (handles multi-line cells)
+   - Google Form feedback integration
+   - Home button to change roles
+   - Premium analytics
+   - Auto-refresh
    ============================================================================ */
 
 const CONFIG = {
     SHEET_ID: '1Mk_dsUSiAqF-dbLhzgbOppu4CqVIgOIxHbiiEnxjh2Y',
     GID: '525529251',
-    FEEDBACK_URL: 'https://script.google.com/macros/s/AKfycbz6FJpD1dWrJikaav46UfxrTkkZkc8VEXo2JhBBLVi7g3GmxeRUGzwJQu7tvVyYo4onIw/exec',
+    
+    // GOOGLE FORM CONFIGURATION
+    FORM_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSdnatcn2uwZw2X3qDTYIcFeIgjZLfdR-vwv4wugxRMLGhSZSg/formResponse',
+    FORM_FIELDS: {
+        name: 'entry.1663372378',
+        helpful: 'entry.102807475',
+        question: 'entry.648254265',
+        successful: 'entry.2005782204',
+        immediate: 'entry.687299986',
+        improvement: 'entry.351588659',
+        onsite: 'entry.1948222890'
+    },
+    
     AUTO_REFRESH: 300000,
     
     SUPPORT: {
@@ -41,8 +57,9 @@ const state = {
     categories: {},
     current: null,
     question: null,
+    currentQuestion: '',
     role: localStorage.getItem('user_role'),
-    email: localStorage.getItem('user_email') || '',
+    userName: localStorage.getItem('user_name') || '',
     analytics: JSON.parse(localStorage.getItem('ask_connor_analytics') || '{"categoryViews":{},"questionViews":{},"totalViews":0,"feedback":{"positive":0,"negative":0}}')
 };
 
@@ -64,6 +81,7 @@ const el = {
     tip: document.getElementById('connorTipText'),
     tipBox: document.querySelector('.connor-tip'),
     role: document.getElementById('roleDisplay'),
+    homeBtn: document.getElementById('homeBtn'),
     analyticsBtn: document.getElementById('analyticsBtn'),
     analyticsModal: document.getElementById('analyticsModal'),
     totalViews: document.getElementById('totalViews'),
@@ -73,22 +91,16 @@ const el = {
 
 async function fetchData() {
     console.log('🔍 Fetching using Google Visualization API...');
-    
-    // USE GVIZ API - handles multi-line cells correctly!
     const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`;
     
     try {
         const r = await fetch(url, {method:'GET', mode:'cors', cache:'no-cache'});
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const text = await r.text();
-        
-        // Parse GVIZ JSON response
         const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/);
         if (!match) throw new Error('Invalid GVIZ response');
-        
         const json = JSON.parse(match[1]);
         const data = parseGViz(json);
-        
         console.log(`✅ Loaded ${data.length} valid questions`);
         return data;
     } catch (e) {
@@ -99,49 +111,40 @@ async function fetchData() {
 
 function parseGViz(jsonData) {
     const table = jsonData.table;
-    const cols = table.cols;
     const rows = table.rows;
-    
     const data = [];
     
-    // Process each row (skip header row 0)
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const cells = row.c || [];
-        
-        // Extract values from cells
-        // GVIZ format: each cell is {v: value, f: formatted}
         const getValue = (cell) => {
             if (!cell) return '';
             return (cell.v || cell.f || '').toString().trim();
         };
         
-        const category = getValue(cells[0]);      // Column A
-        const question = getValue(cells[1]);      // Column B
+        const category = getValue(cells[0]);
+        const question = getValue(cells[1]);
         
-        // STOP if no category
         if (!category) {
             console.log(`⏹️ Stopped at row ${i+2} - no category`);
             break;
         }
         
-        // Skip if no question
         if (!question) {
             console.log(`⚠️ Skipped row ${i+2} - category "${category}" but no question`);
             continue;
         }
         
-        // Build complete row object
         data.push({
             category: category,
             question: question,
-            summary: getValue(cells[2]),       // Column C
-            nextSteps: getValue(cells[3]),     // Column D
-            keywords: getValue(cells[4]),      // Column E
-            source: getValue(cells[5]),        // Column F
-            owner: getValue(cells[6]),         // Column G
-            lastReviewed: getValue(cells[7]),  // Column H
-            tags: getValue(cells[8])           // Column I
+            summary: getValue(cells[2]),
+            nextSteps: getValue(cells[3]),
+            keywords: getValue(cells[4]),
+            source: getValue(cells[5]),
+            owner: getValue(cells[6]),
+            lastReviewed: getValue(cells[7]),
+            tags: getValue(cells[8])
         });
     }
     
@@ -152,7 +155,6 @@ function process(data) {
     state.data = data;
     state.categories = {};
     
-    // Group by Category
     data.forEach(item => {
         const cat = item.category.trim();
         if (!state.categories[cat]) {
@@ -161,7 +163,6 @@ function process(data) {
         state.categories[cat].push(item);
     });
     
-    // Sort categories
     const sorted = {};
     Object.keys(state.categories).sort().forEach(k => {
         sorted[k] = state.categories[k];
@@ -255,119 +256,93 @@ function showRes(results) {
     }
     
     el.empty.style.display = 'none';
-    state.question = results[0];
+    const item = results[0];
+    state.currentQuestion = item.question;
     
-    const html = results.map((item, i) => {
-        const next = parseNext(item.nextSteps);
-        const resources = parseResources(item.source);
-        const sup = CONFIG.SUPPORT[item.category];
+    const next = parseNext(item.nextSteps);
+    const resources = parseResources(item.source);
+    const sup = CONFIG.SUPPORT[item.category];
+    
+    const html = `<div class="result-card">
+        <div class="result-header">
+            <span class="result-category-badge">${item.category}</span>
+            <h3 class="result-question">${item.question}</h3>
+        </div>
+        <div class="result-summary">${item.summary}</div>
         
-        return `<div class="result-card" style="animation-delay:${i*0.05}s">
-            <div class="result-header">
-                <span class="result-category-badge">${item.category}</span>
-                <h3 class="result-question">${item.question}</h3>
-            </div>
-            <div class="result-summary">${item.summary}</div>
-            
-            ${next.length > 0 ? `<div class="result-next-steps">
-                <h4>✅ Next Steps</h4>
-                <ul>${next.map(s => `<li>${s}</li>`).join('')}</ul>
-            </div>` : ''}
-            
-            ${resources.length > 0 ? `<div class="result-resources">
-                <h4>📚 Resources</h4>
-                <div class="resource-links">${resources.map(r => `
-                    <a href="${r.url}" target="_blank" rel="noopener" class="resource-link">
-                        ${r.label}
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                            <polyline points="15 3 21 3 21 9"/>
-                            <line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
-                    </a>
-                `).join('')}</div>
-            </div>` : ''}
-            
-            ${sup ? `<div class="support-contact">
-                <h4>📞 Who to Contact</h4>
-                <div class="support-hierarchy">
-                    <div class="support-level primary">
-                        <div class="support-label">
-                            <span class="support-badge">1st</span>
-                            <strong>${sup.first}</strong>
-                        </div>
-                        <p>${sup.firstHelp}</p>
+        ${next.length > 0 ? `<div class="result-next-steps">
+            <h4>✅ Next Steps</h4>
+            <ul>${next.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>` : ''}
+        
+        ${resources.length > 0 ? `<div class="result-resources">
+            <h4>📚 Resources</h4>
+            <div class="resource-links">${resources.map(r => `
+                <a href="${r.url}" target="_blank" rel="noopener" class="resource-link">
+                    ${r.label}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </a>
+            `).join('')}</div>
+        </div>` : ''}
+        
+        ${sup ? `<div class="support-contact">
+            <h4>📞 Who to Contact</h4>
+            <div class="support-hierarchy">
+                <div class="support-level primary">
+                    <div class="support-label">
+                        <span class="support-badge">1st</span>
+                        <strong>${sup.first}</strong>
                     </div>
-                    <div class="support-level secondary">
-                        <div class="support-label">
-                            <span class="support-badge">2nd</span>
-                            <strong>${sup.second}</strong>
-                        </div>
-                        <p>${sup.secondHelp}</p>
+                    <p>${sup.firstHelp}</p>
+                </div>
+                <div class="support-level secondary">
+                    <div class="support-label">
+                        <span class="support-badge">2nd</span>
+                        <strong>${sup.second}</strong>
                     </div>
-                </div>
-            </div>` : ''}
-            
-            <div class="result-footer">
-                ${item.owner ? `<span class="result-owner">👤 ${item.owner}</span>` : ''}
-                ${item.lastReviewed ? `<span class="result-reviewed">📅 ${item.lastReviewed}</span>` : ''}
-            </div>
-            
-            <div class="feedback-section">
-                <div class="feedback-question">Was this helpful?</div>
-                <div class="feedback-buttons">
-                    <button class="feedback-btn helpful" data-question="${esc(item.question)}" data-helpful="yes">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-                        </svg>
-                        👍 Helpful
-                    </button>
-                    <button class="feedback-btn not-helpful" data-question="${esc(item.question)}" data-helpful="no">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
-                        </svg>
-                        👎 Not Helpful
-                    </button>
-                    <button class="feedback-btn request" data-index="${i}">💬 Request Help</button>
-                </div>
-                <div id="fb-form-${i}" class="feedback-form" style="display:none">
-                    <input type="email" id="fb-email-${i}" placeholder="Your email (optional)" value="${state.email}">
-                    <textarea id="fb-text-${i}" placeholder="What help do you need?" rows="3"></textarea>
-                    <button class="submit-feedback" data-question="${esc(item.question)}" data-index="${i}">Submit Request</button>
+                    <p>${sup.secondHelp}</p>
                 </div>
             </div>
-        </div>`;
-    }).join('');
+        </div>` : ''}
+        
+        <div class="result-footer">
+            ${item.owner ? `<span class="result-owner">👤 ${item.owner}</span>` : ''}
+            ${item.lastReviewed ? `<span class="result-reviewed">📅 ${item.lastReviewed}</span>` : ''}
+        </div>
+        
+        <div class="feedback-section-premium">
+            <div class="feedback-header">
+                <h4>💬 Help Us Improve</h4>
+                <p>Your feedback makes Connor better for everyone!</p>
+            </div>
+            <button class="feedback-btn-premium" onclick="openFeedbackForm()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Share Feedback
+            </button>
+        </div>
+    </div>`;
     
     el.resContainer.innerHTML = html;
-    
-    document.querySelectorAll('.feedback-btn.helpful, .feedback-btn.not-helpful').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const question = btn.dataset.question;
-            const helpful = btn.dataset.helpful;
-            submitHelpful(question, helpful === 'yes');
-        });
-    });
-    
-    document.querySelectorAll('.feedback-btn.request').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const i = btn.dataset.index;
-            showForm(i);
-        });
-    });
-    
-    document.querySelectorAll('.submit-feedback').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const question = btn.dataset.question;
-            const i = btn.dataset.index;
-            submitDetail(question, i);
-        });
-    });
-    
     setTimeout(() => el.resSec.scrollIntoView({behavior: 'smooth'}), 100);
+}
+
+function openFeedbackForm() {
+    const userName = state.userName || prompt('What is your name?') || 'Anonymous';
+    if (!state.userName && userName !== 'Anonymous') {
+        state.userName = userName;
+        localStorage.setItem('user_name', userName);
+    }
+    
+    const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSdnatcn2uwZw2X3qDTYIcFeIgjZLfdR-vwv4wugxRMLGhSZSg/viewform?${CONFIG.FORM_FIELDS.name}=${encodeURIComponent(userName)}&${CONFIG.FORM_FIELDS.question}=${encodeURIComponent(state.currentQuestion)}`;
+    
+    window.open(formUrl, '_blank', 'width=700,height=800');
+    notify('✅ Feedback form opened!', 'success');
 }
 
 function esc(str) {
@@ -382,11 +357,9 @@ function parseNext(text) {
 function parseResources(text) {
     if (!text) return [];
     const resources = [];
-    
     text.split(/\n/).forEach(line => {
         line = line.trim();
         if (!line) return;
-        
         const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
         if (urlMatch) {
             const url = urlMatch[0];
@@ -394,78 +367,7 @@ function parseResources(text) {
             resources.push({label, url});
         }
     });
-    
     return resources;
-}
-
-async function submitHelpful(question, helpful) {
-    const helpfulText = helpful ? 'Yes' : 'No';
-    const feedbackType = helpful ? 'Positive Feedback' : 'Negative Feedback';
-    
-    if (helpful) {
-        state.analytics.feedback.positive++;
-    } else {
-        state.analytics.feedback.negative++;
-    }
-    localStorage.setItem('ask_connor_analytics', JSON.stringify(state.analytics));
-    
-    await sendFeedback(question, state.email || 'Not provided', feedbackType, helpful ? '✅ Helpful' : '⚠️ Needs improvement', helpfulText);
-    notify(helpful ? '✅ Thanks!' : '📝 We\'ll improve!', 'success');
-}
-
-function showForm(i) {
-    document.querySelectorAll('.feedback-form').forEach(f => f.style.display = 'none');
-    document.getElementById(`fb-form-${i}`).style.display = 'block';
-}
-
-async function submitDetail(question, i) {
-    const emailEl = document.getElementById(`fb-email-${i}`);
-    const textEl = document.getElementById(`fb-text-${i}`);
-    const email = emailEl.value.trim() || 'Not provided';
-    const reqText = textEl.value.trim();
-    
-    if (!reqText) {
-        notify('⚠️ Please enter your request', 'warning');
-        return;
-    }
-    
-    if (email !== 'Not provided') {
-        state.email = email;
-        localStorage.setItem('user_email', email);
-    }
-    
-    await sendFeedback(question, email, 'Help Request', reqText, '');
-    textEl.value = '';
-    document.getElementById(`fb-form-${i}`).style.display = 'none';
-    notify('✅ Request submitted!', 'success');
-}
-
-async function sendFeedback(question, email, reqType, req, helpful) {
-    try {
-        const payload = {
-            question: question,
-            userEmail: email,
-            requestType: reqType,
-            request: req,
-            helpful: helpful,
-            timestamp: new Date().toISOString(),
-            role: state.role || 'Not specified',
-            category: state.current || ''
-        };
-        
-        console.log('📤 Sending feedback:', payload);
-        
-        await fetch(CONFIG.FEEDBACK_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        });
-        
-        console.log('✅ Feedback sent');
-    } catch (e) {
-        console.error('❌ Feedback error:', e);
-    }
 }
 
 function notify(msg, type) {
@@ -524,17 +426,12 @@ function renderCharts() {
             ${qHTML || '<p>No data yet</p>'}
         </div>
         <div class="chart-section">
-            <h3>💬 Feedback Summary</h3>
+            <h3>💬 Total Views</h3>
             <div class="feedback-summary">
                 <div class="feedback-stat positive">
-                    <div class="feedback-icon">👍</div>
-                    <div class="feedback-count">${state.analytics.feedback.positive}</div>
-                    <div class="feedback-label">Helpful</div>
-                </div>
-                <div class="feedback-stat negative">
-                    <div class="feedback-icon">👎</div>
-                    <div class="feedback-count">${state.analytics.feedback.negative}</div>
-                    <div class="feedback-label">Not Helpful</div>
+                    <div class="feedback-icon">👁️</div>
+                    <div class="feedback-count">${state.analytics.totalViews}</div>
+                    <div class="feedback-label">Page Views</div>
                 </div>
             </div>
         </div>
@@ -597,6 +494,13 @@ function updateTip(cat) {
     setTimeout(() => el.tipBox.classList.add('show'), 100);
 }
 
+function goHome() {
+    if (confirm('Return to role selection? This will reload the page.')) {
+        localStorage.removeItem('user_role');
+        window.location.href = 'welcome.html';
+    }
+}
+
 function initEvents() {
     el.search.addEventListener('input', e => {
         const q = e.target.value.trim();
@@ -639,6 +543,10 @@ function initEvents() {
         el.refresh.style.opacity = '1';
         notify('✅ Refreshed!', 'success');
     });
+    
+    if (el.homeBtn) {
+        el.homeBtn.addEventListener('click', goHome);
+    }
     
     if (document.querySelector('.connor-avatar')) {
         document.querySelector('.connor-avatar').addEventListener('click', () => el.tipBox.classList.toggle('show'));
