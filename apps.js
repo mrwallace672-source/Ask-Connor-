@@ -8,13 +8,36 @@
 // ==========================================================================
 
 const CONFIG = {
-    // PASTE YOUR GOOGLE SHEET PUBLISHED ID HERE
-    // Example: '2PACX-1vSDVW39TNqINfhHWHzl1_7Dwxz7RYeo9DRMj6mhQNIt9AXgX8yt_qJ4PjzothzGNHGyiNRyqLfv-w6L'
+    // ============================================================================
+    // GOOGLE SHEET CONFIGURATION
+    // ============================================================================
+    // To get your Published ID:
+    // 1. Open your Google Sheet
+    // 2. File → Share → Publish to web
+    // 3. Choose "Entire Document" or specific sheet
+    // 4. Publish as "Web page"
+    // 5. Copy the long ID from the published URL (between /d/ and /pub)
+    // 
+    // IMPORTANT: You need the ORIGINAL Sheet ID, not the published ID
+    // Find it in your sheet URL: https://docs.google.com/spreadsheets/d/[THIS_IS_THE_ID]/edit
+    // ============================================================================
+    
     SHEET_ID: '2PACX-1vSDVW39TNqINfhHWHzl1_7Dwxz7RYeo9DRMj6mhQNIt9AXgX8yt_qJ4PjzothzGNHGyiNRyqLfv-w6L',
     GID: '525529251',
     
+    // Set to true to use sample data if sheet fails to load (for testing)
+    USE_SAMPLE_DATA_ON_ERROR: true,
+    
     // High-Impact Tutoring Tips by Category
     CONNOR_TIPS: {
+        'i-Ready / Data': '<strong>High-Impact Tip:</strong> Use diagnostic data to drive instruction! Focus on the lowest domains first and track scholar progress through each diagnostic cycle. Data-driven tutoring produces 3x typical growth rates.',
+        'PEARL / Attendance': '<strong>High-Impact Tip:</strong> Consistency is key! High-dosage tutoring (≥90% attendance, 3+ sessions/week) shows the strongest impact. Log attendance within 24 hours and flag chronic absenteeism early.',
+        'PEARL / Surveys': '<strong>High-Impact Tip:</strong> Surveys capture real-time quality data. Complete them after every session to help coaches support you. Aim for survey scores of 4+ on a 5-point scale.',
+        'Program Expectations': '<strong>High-Impact Tip:</strong> Quality tutoring is relationship-centered and data-driven. Arrive prepared, communicate proactively with site leads, and maintain professional standards.',
+        'Coaching / Growth': '<strong>High-Impact Tip:</strong> Reflection drives improvement! Review your attendance, survey feedback, and scholar growth data weekly. Use coaching sessions to strengthen instructional strategies.',
+        'Behavior Management': '<strong>High-Impact Tip:</strong> Build relationships first! Use proximity redirection and positive reinforcement. Keep redirections private to preserve scholar dignity and rapport.',
+        'Engagement Strategies': '<strong>High-Impact Tip:</strong> Make learning fun and interactive! Use games, movement, and real-world connections. Small-group settings (3-4 students) maximize engagement.',
+        'Instructional Differentiation': '<strong>High-Impact Tip:</strong> Meet scholars where they are. Identify skill gaps early and reteach foundational concepts before advancing. Differentiation = targeted support.',
         'Behavior': '<strong>High-Impact Tip:</strong> Build strong relationships first. Research shows tutoring is most effective when students feel safe and supported. Use consistent routines and positive reinforcement.',
         'Engagement': '<strong>High-Impact Tip:</strong> Keep sessions interactive! Studies show small-group settings (3-4 students) maximize engagement while maintaining personalization. Use hands-on activities.',
         'Differentiation': '<strong>High-Impact Tip:</strong> Meet students where they are. Use formative assessment data to tailor instruction. High-dosage tutoring works best when content is just above current skill level.',
@@ -26,7 +49,99 @@ const CONFIG = {
         'Training': '<strong>High-Impact Tip:</strong> Invest in tutor development. Well-trained tutors with ongoing coaching produce significantly better outcomes. Practice makes progress!',
         'Scheduling': '<strong>High-Impact Tip:</strong> Consistency matters! High-dosage tutoring (3+ sessions per week) shows strongest impact. Build predictable schedules that students can count on.',
         'default': 'Hi! I'm Connor, your tutoring guide. High-impact tutoring combines <strong>strong relationships, small groups, data-driven instruction,</strong> and <strong>consistent scheduling</strong>. Select a category to get started!'
-    }
+    },
+    
+    // Sample data for testing (based on NJTC Knowledge Base PDF)
+    SAMPLE_DATA: [
+        {
+            category: 'i-Ready / Data',
+            question: 'How do I read the i-Ready diagnostic report?',
+            summary: 'The i-Ready Diagnostic shows each scholar\'s performance across Reading or Math domains. Focus on the color bands (red = significantly below grade level, yellow = one level below, green = on or above). Hover over each domain to see placement level and scale score.',
+            nextSteps: 'Identify lowest domains to prioritize instruction\nUse the "Individual Student Report" to track growth\nAlign tutoring sessions with domain needs',
+            keywords: 'diagnostic, report, placement, i-Ready',
+            source: 'i-Ready 5 Level Placement | https://drive.google.com/file/d/1bXbRnxcLw3Sl_ya7C9e3dUGXH0NPYdc_/view?usp=drive_link',
+            owner: 'Evaluation and Impact',
+            lastReviewed: '10/2025',
+            tags: 'how-to'
+        },
+        {
+            category: 'PEARL / Attendance',
+            question: 'How do I log attendance and surveys?',
+            summary: 'Go to Sessions → Select the scheduled session → Actions → Attendance. Mark each scholar as Present or Absent. If absent, specify the appropriate reason for the absence. Ensure the post-session survey is completed.',
+            nextSteps: 'Log attendance after every session\nComplete survey before closing PEARL tab\nConfirm the session shows as "Completed"',
+            keywords: 'attendance, surveys, PEARL, session log',
+            source: 'PEARL Guide | https://tutorwithpearl.my.site.com/customers/s/article/View-Sessions-Complete-Post-Session-Reports-as-anInstructor#Mark_Attendance',
+            owner: 'Program Operations',
+            lastReviewed: '10/2025',
+            tags: 'how-to'
+        },
+        {
+            category: 'PEARL / Attendance',
+            question: 'What happens if I don\'t capture surveys or attendance?',
+            summary: 'Missing attendance or surveys leads to data gaps that affect accountability, growth tracking, and funding.',
+            nextSteps: 'Complete within 24 hours\nContact site lead if missing link\nKeep consistent tracking for all sessions',
+            keywords: 'attendance, survey, missing, compliance',
+            source: 'Pearl Operations Procedure',
+            owner: 'Evaluation and Impact',
+            lastReviewed: '10/2025',
+            tags: 'policy'
+        },
+        {
+            category: 'Program Expectations',
+            question: 'What\'s the NJTC attendance benchmark for tutors?',
+            summary: 'Tutors are expected to maintain ≥90% attendance to ensure consistent dosage and scholar growth.',
+            nextSteps: 'Monitor your attendance weekly\nCommunicate any absences proactively\nReview your rate monthly with site lead',
+            keywords: 'attendance, benchmark, consistency, dosage',
+            source: 'Benchmark Documentation',
+            owner: 'Evaluation and Impact',
+            lastReviewed: '10/2025',
+            tags: 'policy'
+        },
+        {
+            category: 'Behavior Management',
+            question: 'How should I respond when scholars talk during instruction?',
+            summary: 'Quietly redirect off-task scholars through proximity and positive reinforcement.',
+            nextSteps: 'Move closer (proximity redirection)\nReinforce positive behavior ("I like how Jordan is focused.")',
+            keywords: 'talkative, behavior, behavioral, support',
+            source: 'Behavior Management Guide | https://www.youtube.com/watch?v=K3yELj1W_IA',
+            owner: 'Program Operations',
+            lastReviewed: '10/2025',
+            tags: 'Behavior'
+        },
+        {
+            category: 'Engagement Strategies',
+            question: 'How do I make lessons fun while staying on task?',
+            summary: 'Add fun competition or games to sustain focus without losing structure.',
+            nextSteps: 'Turn practice into games or challenges\nKeep transitions short and rules simple',
+            keywords: 'engagement, engaging, fun, activity, planning, math, reading, english, ela, literacy, lesson planning, support',
+            source: 'Activity Guide | https://drive.google.com/file/d/1JuszYLqp6j7xmNvrJ9k2W5giavd1HmYk/view?usp=drive_link',
+            owner: 'Training and Development',
+            lastReviewed: '10/2025',
+            tags: 'Activities'
+        },
+        {
+            category: 'Coaching / Growth',
+            question: 'How do I use data to reflect on my performance?',
+            summary: 'Review your attendance, survey feedback, and scholar progress data regularly. These indicators show your consistency, effectiveness, and instructional impact.',
+            nextSteps: 'Review data dashboards weekly\nIdentify patterns or growth areas\nDiscuss insights with your coach',
+            keywords: 'reflection, data, self-evaluation, performance',
+            source: '',
+            owner: 'Evaluation and Impact',
+            lastReviewed: '10/2025',
+            tags: 'reflection'
+        },
+        {
+            category: 'Instructional Differentiation',
+            question: 'What should I do if my scholars are missing foundational skills?',
+            summary: 'Identify skill gaps early and reteach key concepts before advancing new material.',
+            nextSteps: 'Start with a 5-minute reteach or model lesson\nAddress missing steps before moving to new content',
+            keywords: 'foundational skills, math, reading, english, ela, literacy, lesson planning, support',
+            source: 'IES Practice Guide | https://ies.ed.gov/ncee/wwc/PracticeGuide/21',
+            owner: 'Training and Development',
+            lastReviewed: '10/2025',
+            tags: 'Foundational'
+        }
+    ]
 };
 
 // ==========================================================================
@@ -620,7 +735,41 @@ async function loadData() {
         elements.questionsSection.style.display = 'none';
         elements.emptyState.style.display = 'none';
         
-        const data = await fetchSheetData();
+        let data;
+        try {
+            data = await fetchSheetData();
+            console.log('✅ Successfully loaded data from Google Sheets', data);
+        } catch (error) {
+            console.warn('⚠️ Google Sheets fetch failed, using sample data:', error);
+            
+            if (CONFIG.USE_SAMPLE_DATA_ON_ERROR) {
+                data = CONFIG.SAMPLE_DATA;
+                
+                // Show warning banner
+                const warningBanner = document.createElement('div');
+                warningBanner.style.cssText = `
+                    background: linear-gradient(135deg, #FFB81C 0%, #FFD466 100%);
+                    color: #003366;
+                    padding: 1rem;
+                    text-align: center;
+                    font-family: var(--font-display);
+                    font-weight: 600;
+                    border-bottom: 3px solid #003366;
+                    position: sticky;
+                    top: 0;
+                    z-index: 200;
+                    animation: slideDown 0.5s ease-out;
+                `;
+                warningBanner.innerHTML = `
+                    ⚠️ Demo Mode: Using sample data. To connect your Google Sheet, see setup instructions below.
+                    <button onclick="this.parentElement.remove()" style="margin-left: 1rem; padding: 0.25rem 0.75rem; background: #003366; color: white; border: none; border-radius: 4px; cursor: pointer;">Dismiss</button>
+                `;
+                document.body.insertBefore(warningBanner, document.body.firstChild);
+            } else {
+                throw error;
+            }
+        }
+        
         processData(data);
         renderCategories();
         
@@ -633,18 +782,35 @@ async function loadData() {
         }, 1500);
         
     } catch (error) {
-        console.error('Failed to load data:', error);
+        console.error('❌ Failed to load data:', error);
         elements.loadingState.innerHTML = `
-            <div style="text-align: center; padding: 2rem;">
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2">
+            <div style="text-align: center; padding: 2rem; max-width: 600px; margin: 0 auto;">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2" style="margin-bottom: 1rem;">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="12"/>
                     <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                <h3 style="color: #FF6B6B; margin-top: 1rem;">Failed to Load Data</h3>
-                <p style="color: #666;">Please check your Google Sheet configuration and try again.</p>
-                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #003366; color: white; border: none; border-radius: 8px; cursor: pointer;">
-                    Retry
+                <h3 style="color: #FF6B6B; margin-bottom: 1rem;">Unable to Load Knowledge Base</h3>
+                <p style="color: #666; margin-bottom: 1.5rem;">Please check your Google Sheet setup and try again.</p>
+                
+                <div style="background: #F8FAFB; padding: 1.5rem; border-radius: 12px; text-align: left; margin-bottom: 1.5rem;">
+                    <h4 style="color: #003366; margin-bottom: 1rem; font-family: var(--font-display);">Setup Instructions:</h4>
+                    <ol style="color: #5A6B7A; line-height: 1.8; padding-left: 1.5rem;">
+                        <li><strong>Open your Google Sheet</strong></li>
+                        <li>Go to <strong>File → Share → Publish to web</strong></li>
+                        <li>Choose your sheet and publish as <strong>"Web page"</strong></li>
+                        <li><strong>Copy the Sheet ID</strong> from your sheet URL:<br>
+                            <code style="background: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; display: inline-block; margin-top: 0.5rem;">
+                                docs.google.com/spreadsheets/d/<strong style="color: #FFB81C;">[THIS_PART]</strong>/edit
+                            </code>
+                        </li>
+                        <li>Paste the ID in <strong>app.js</strong> at line 14</li>
+                        <li>Set <code>USE_SAMPLE_DATA_ON_ERROR: false</code> in app.js</li>
+                    </ol>
+                </div>
+                
+                <button onclick="location.reload()" style="padding: 0.75rem 1.5rem; background: #003366; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 1rem;">
+                    🔄 Try Again
                 </button>
             </div>
         `;
