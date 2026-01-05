@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Ask Connor | NJTC Knowledge Base</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; overflow-x: hidden; }
+        
+        .welcome-hero {
+            background: linear-gradient(135deg, #003366 0%, #001a33 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 184, 28, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 184, 28, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .welcome-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo-large {
+            max-width: 600px;
+            width: 90%;
+            height: auto;
+            margin: 0 auto 3rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .welcome-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            color: white;
+            margin: 0 0 1rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        
+        .welcome-subtitle {
+            font-family: var(--font-body);
+            font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+            color: #FFB81C;
+            margin: 0 0 3rem;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+        
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+        
+        .role-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #003366, #FFB81C);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 51, 102, 0.3);
+            border-color: #FFB81C;
+        }
+        
+        .role-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .role-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .role-name {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #003366;
+            margin: 0 0 0.5rem;
+        }
+        
+        .role-description {
+            font-family: var(--font-body);
+            color: #5A6B7A;
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            margin: 0 0 1rem;
+        }
+        
+        .role-highlights {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0;
+            text-align: left;
+        }
+        
+        .role-highlights li {
+            font-size: 0.875rem;
+            color: #7B8A99;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #E4E9ED;
+        }
+        
+        .role-highlights li:last-child {
+            border-bottom: none;
+        }
+        
+        .role-highlights li::before {
+            content: '→';
+            color: #FFB81C;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .skip-button {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1rem 2.5rem;
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+        
+        .skip-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #FFB81C;
+            color: #FFB81C;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .role-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-container {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-hero">
+        <div class="welcome-container">
+            <img src="NJTC_LOGO.png" alt="NJTC Logo" class="logo-large" id="njtcLogo">
+            
+            <h1 class="welcome-title">Welcome to Ask Connor</h1>
+            <p class="welcome-subtitle">Your High-Impact Tutoring Knowledge Partner</p>
+            
+            <div class="role-selector">
+                <div class="role-card" data-role="tutor" onclick="selectRole('tutor')">
+                    <div class="role-icon">👨‍🏫</div>
+                    <h2 class="role-name">Tutor</h2>
+                    <p class="role-description">Direct instruction with scholars in small groups</p>
+                    <ul class="role-highlights">
+                        <li>Attendance & PEARL</li>
+                        <li>i-Ready & Data</li>
+                        <li>Behavior Management</li>
+                    </ul>
+                </div>
+                
+                <div class="role-card" data-role="substitute" onclick="selectRole('substitute')">
+                    <div class="role-icon">📋</div>
+                    <h2 class="role-name">Substitute</h2>
+                    <p class="role-description">Covering sessions and maintaining continuity</p>
+                    <ul class="role-highlights">
+                        <li>Program Expectations</li>
+                        <li>Quick Start Guide</li>
+                        <li>Engagement Strategies</li>
+                    </ul>
+                </div>
+                
+                <div class="role-card" data-role="coach" onclick="selectRole('coach')">
+                    <div class="role-icon">🎓</div>
+                    <h2 class="role-name">Instructional Coach</h2>
+                    <p class="role-description">Supporting tutor growth and program quality</p>
+                    <ul class="role-highlights">
+                        <li>Coaching & Growth</li>
+                        <li>Data Analysis</li>
+                        <li>Differentiation</li>
+                    </ul>
+                </div>
+                
+                <div class="role-card" data-role="site-lead" onclick="selectRole('site-lead')">
+                    <div class="role-icon">⭐</div>
+                    <h2 class="role-name">Onsite Leader</h2>
+                    <p class="role-description">Managing site operations and team coordination</p>
+                    <ul class="role-highlights">
+                        <li>Operations Management</li>
+                        <li>Team Support</li>
+                        <li>Escalation Procedures</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <a href="index.html" class="skip-button">Skip - Browse All Resources</a>
+        </div>
+    </div>
+
+    <script>
+        // Load logo from localStorage or use placeholder
+        const logoImg = document.getElementById('njtcLogo');
+        const savedLogo = localStorage.getItem('njtc_logo');
+        if (savedLogo) {
+            logoImg.src = savedLogo;
+        }
+        
+        function selectRole(role) {
+            // Save role to localStorage
+            localStorage.setItem('user_role', role);
+            
+            // Add animation
+            const card = document.querySelector(`[data-role="${role}"]`);
+            card.style.transform = 'scale(1.05)';
+            card.style.boxShadow = '0 30px 60px rgba(255, 184, 28, 0.4)';
+            
+            // Navigate to main app after brief delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 400);
+        }
+    </script>
+</body>
+</html>
