@@ -3,149 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ask Connor | NJTC Knowledge Base</title>
-    <meta name="description" content="New Jersey Tutoring Corps Knowledge Base - Instant answers to tutor questions">
+    <title>Ask Connor | New Jersey Tutoring Corps</title>
+    <meta name="description" content="NJTC High-Impact Tutoring Knowledge Base">
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- Premium Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
     
-    <!-- HEADER -->
-    <header class="app-header">
+    <!-- PREMIUM HEADER WITH NJTC BRANDING -->
+    <header class="premium-header">
         <div class="container">
             <div class="header-content">
-                <div class="logo-section">
-                    <div class="connor-icon-header">
-                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="headerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#003366;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#002244;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <ellipse cx="50" cy="60" rx="35" ry="30" fill="url(#headerGradient)"/>
-                            <circle cx="50" cy="35" r="25" fill="url(#headerGradient)"/>
-                            <circle cx="42" cy="32" r="4" fill="#FFB81C"/>
-                            <circle cx="58" cy="32" r="4" fill="#FFB81C"/>
-                            <path d="M 40 40 Q 50 45 60 40" stroke="#FFB81C" stroke-width="2" fill="none" stroke-linecap="round"/>
-                            <line x1="50" y1="10" x2="50" y2="15" stroke="#FFB81C" stroke-width="2"/>
-                            <circle cx="50" cy="8" r="3" fill="#FFB81C"/>
-                        </svg>
-                    </div>
-                    <div class="header-text">
-                        <h1>Ask Connor</h1>
-                        <p class="tagline">Your High-Impact Tutoring Knowledge Partner</p>
+                <div class="brand-section">
+                    <div class="brand-logo">
+                        <div class="logo-text">
+                            <h1 class="brand-name">New Jersey Tutoring Corps</h1>
+                            <div class="brand-divider"></div>
+                            <h2 class="app-name">Ask Connor</h2>
+                            <p class="tagline">High-Impact Tutoring Knowledge Partner</p>
+                        </div>
                     </div>
                 </div>
-                <button id="refreshBtn" class="refresh-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                    </svg>
-                    <span>Refresh</span>
-                </button>
+                
+                <div class="header-actions">
+                    <div class="user-role" id="roleDisplay" style="display:none;"></div>
+                    <button id="refreshBtn" class="refresh-btn premium-btn">
+                        <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
             </div>
         </div>
     </header>
+
+    <!-- ANALYTICS DASHBOARD -->
+    <section class="analytics-dashboard" id="analyticsDash" style="display:none;">
+        <div class="container">
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-icon">📊</div>
+                    <div class="analytics-data">
+                        <div class="analytics-value" id="totalViews">0</div>
+                        <div class="analytics-label">Total Views</div>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-icon">🔥</div>
+                    <div class="analytics-data">
+                        <div class="analytics-value" id="topCategory">Loading...</div>
+                        <div class="analytics-label">Most Searched</div>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-icon">⏱️</div>
+                    <div class="analytics-data">
+                        <div class="analytics-value" id="lastUpdate">Just now</div>
+                        <div class="analytics-label">Last Updated</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
         <div class="container">
             
-            <!-- SEARCH -->
-            <section class="search-section">
-                <div class="search-wrapper">
-                    <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- PREMIUM SEARCH SECTION -->
+            <section class="search-hero">
+                <div class="search-wrapper premium-glass">
+                    <svg class="search-icon-premium" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
                     <input 
                         type="search" 
                         id="searchInput" 
+                        class="search-input-premium"
                         placeholder="Search questions, keywords, or topics..."
                         autocomplete="off"
                     >
-                    <button id="clearSearch" class="clear-btn" style="display: none;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button id="clearSearch" class="clear-btn-premium" style="display:none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"/>
                             <line x1="6" y1="6" x2="18" y2="18"/>
                         </svg>
                     </button>
                 </div>
-                <div id="searchResults" class="search-autocomplete"></div>
+                <div id="searchResults" class="search-autocomplete-premium"></div>
             </section>
 
-            <!-- CATEGORIES -->
-            <section id="categorySection" class="category-section">
-                <h2 class="section-title">Explore by Category</h2>
-                <div id="categoryGrid" class="category-grid"></div>
+            <!-- CATEGORY GRID -->
+            <section id="categorySection" class="category-section-premium">
+                <div class="section-header">
+                    <h2 class="section-title-premium">Explore by Category</h2>
+                    <div class="section-subtitle">Select a category to browse questions</div>
+                </div>
+                <div id="categoryGrid" class="category-grid-premium"></div>
             </section>
 
-            <!-- QUESTIONS -->
-            <section id="questionsSection" class="questions-section" style="display: none;">
-                <div class="questions-header">
-                    <button id="backBtn" class="back-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- QUESTIONS SECTION -->
+            <section id="questionsSection" class="questions-section-premium" style="display:none;">
+                <div class="questions-header-premium">
+                    <button id="backBtn" class="back-btn-premium">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 12H5M12 19l-7-7 7-7"/>
                         </svg>
-                        Back to Categories
+                        Back
                     </button>
-                    <h2 id="categoryTitle" class="section-title"></h2>
+                    <h2 id="categoryTitle" class="category-title-premium"></h2>
                 </div>
-                <div id="questionChips" class="question-chips"></div>
+                <div id="questionChips" class="question-chips-premium"></div>
             </section>
 
-            <!-- RESULTS -->
-            <section id="resultsSection" class="results-section">
-                <div id="resultsContainer" class="results-container"></div>
+            <!-- RESULTS SECTION -->
+            <section id="resultsSection" class="results-section-premium">
+                <div id="resultsContainer" class="results-container-premium"></div>
             </section>
 
-            <!-- LOADING -->
-            <div id="loadingState" class="loading-state">
-                <div class="loading-spinner"></div>
-                <p>Loading knowledge base from Google Sheets...</p>
+            <!-- LOADING STATE -->
+            <div id="loadingState" class="loading-state-premium">
+                <div class="loading-spinner-premium">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                </div>
+                <p class="loading-text">Loading knowledge base...</p>
             </div>
 
             <!-- EMPTY STATE -->
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <div id="emptyState" class="empty-state-premium" style="display:none;">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="11" cy="11" r="8"/>
                     <path d="m21 21-4.35-4.35"/>
                 </svg>
                 <h3>No results found</h3>
-                <p>Try adjusting your search or browse by category</p>
+                <p>Try different keywords or browse by category</p>
             </div>
 
         </div>
     </main>
 
-    <!-- CONNOR BOT -->
-    <div id="connorBot" class="connor-bot">
-        <div class="connor-avatar">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="botGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#003366;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#002244;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <ellipse cx="50" cy="60" rx="35" ry="30" fill="url(#botGradient)"/>
-                <circle cx="50" cy="35" r="25" fill="url(#botGradient)"/>
-                <circle cx="42" cy="32" r="4" fill="#FFB81C"/>
-                <circle cx="58" cy="32" r="4" fill="#FFB81C"/>
-                <path d="M 40 40 Q 50 45 60 40" stroke="#FFB81C" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <line x1="50" y1="10" x2="50" y2="15" stroke="#FFB81C" stroke-width="2"/>
-                <circle cx="50" cy="8" r="3" fill="#FFB81C"/>
-            </svg>
+    <!-- CONNOR BOT ASSISTANT -->
+    <div id="connorBot" class="connor-bot-premium">
+        <div class="connor-avatar-premium">
+            <div class="avatar-glow"></div>
+            <div class="avatar-content">C</div>
         </div>
-        <div class="connor-tip">
-            <div class="tip-content">
-                <p id="connorTipText">Hi! I'm Connor, your tutoring guide. Select a category to get started!</p>
+        <div class="connor-tip-premium">
+            <div class="tip-content-premium">
+                <p id="connorTipText">Hi! I'm Connor. Select a category to get started!</p>
             </div>
         </div>
+    </div>
+
+    <!-- CATEGORY USAGE CHART (FLOATING) -->
+    <div id="usageChart" class="usage-chart-premium" style="display:none;">
+        <div class="chart-header">
+            <h4>📊 Category Usage</h4>
+            <button class="chart-close" onclick="document.getElementById('usageChart').style.display='none'">×</button>
+        </div>
+        <div class="chart-body" id="chartBody"></div>
     </div>
 
     <script src="app.js"></script>
