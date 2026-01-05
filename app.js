@@ -1,15 +1,13 @@
 /* ============================================================================
-   Ask Connor - PERFECT FINAL VERSION
-   🏆 FLOATING ASSISTANCE BUTTON + POPUP MODAL FORM
+   Ask Connor - FINAL PERFECT VERSION
+   🏆 FLOATING BUTTON + ANIMATED POPUP MODAL - PREMIUM GRADE
    
-   Form shows as popup modal - NEVER redirects to Google Forms
+   NO embedded forms - ONLY floating button that opens modal
    ============================================================================ */
 
 const CONFIG = {
     SHEET_ID: '1Mk_dsUSiAqF-dbLhzgbOppu4CqVIgOIxHbiiEnxjh2Y',
     GID: '525529251',
-    
-    // GOOGLE FORM BACKEND SUBMISSION
     FORM_ACTION: 'https://docs.google.com/forms/d/e/1FAIpQLSdnatcn2uwZw2X3qDTYIcFeIgjZLfdR-vwv4wugxRMLGhSZSg/formResponse',
     FORM_FIELDS: {
         name: 'entry.1663372378',
@@ -20,9 +18,7 @@ const CONFIG = {
         improvement: 'entry.351588659',
         onsite: 'entry.1948222890'
     },
-    
     AUTO_REFRESH: 300000,
-    
     SUPPORT: {
         'i-Ready / Data': {first: 'Onsite Leader',firstHelp: 'Reports, progress, color bands',second: 'Program Manager',secondHelp: 'Technical issues'},
         'PEARL / Attendance': {first: 'Onsite Leader',firstHelp: 'Logging, tracking',second: 'Program Manager',secondHelp: 'System issues'},
@@ -33,7 +29,6 @@ const CONFIG = {
         'Engagement Strategies': {first: 'Onsite Leader',firstHelp: 'Activity ideas',second: 'Program Manager',secondHelp: 'Curriculum resources'},
         'Instructional Differentiation': {first: 'Onsite Leader',firstHelp: 'Differentiation strategies',second: 'Program Manager',secondHelp: 'Specialized resources'}
     },
-    
     TIPS: {
         'i-Ready / Data': '📊 <strong>Data-Driven Excellence:</strong> Color bands guide instruction!',
         'PEARL / Attendance': '📅 <strong>Consistency = Impact:</strong> ≥90% attendance!',
@@ -80,15 +75,12 @@ const el = {
     analyticsModal: document.getElementById('analyticsModal'),
     totalViews: document.getElementById('totalViews'),
     topCategory: document.getElementById('topCategory'),
-    chartBody: document.getElementById('chartBody'),
-    feedbackModal: document.getElementById('feedbackModal'),
-    feedbackBtn: document.getElementById('feedbackFloatingBtn')
+    chartBody: document.getElementById('chartBody')
 };
 
 async function fetchData() {
     console.log('🔍 Fetching using Google Visualization API...');
     const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`;
-    
     try {
         const r = await fetch(url, {method:'GET', mode:'cors', cache:'no-cache'});
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -109,7 +101,6 @@ function parseGViz(jsonData) {
     const table = jsonData.table;
     const rows = table.rows;
     const data = [];
-    
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const cells = row.c || [];
@@ -117,17 +108,13 @@ function parseGViz(jsonData) {
             if (!cell) return '';
             return (cell.v || cell.f || '').toString().trim();
         };
-        
         const category = getValue(cells[0]);
         const question = getValue(cells[1]);
-        
         if (!category) {
             console.log(`⏹️ Stopped at row ${i+2} - no category`);
             break;
         }
-        
         if (!question) continue;
-        
         data.push({
             category: category,
             question: question,
@@ -140,14 +127,12 @@ function parseGViz(jsonData) {
             tags: getValue(cells[8])
         });
     }
-    
     return data;
 }
 
 function process(data) {
     state.data = data;
     state.categories = {};
-    
     data.forEach(item => {
         const cat = item.category.trim();
         if (!state.categories[cat]) {
@@ -155,13 +140,11 @@ function process(data) {
         }
         state.categories[cat].push(item);
     });
-    
     const sorted = {};
     Object.keys(state.categories).sort().forEach(k => {
         sorted[k] = state.categories[k];
     });
     state.categories = sorted;
-    
     console.log(`📊 Categories: ${Object.keys(state.categories).join(', ')}`);
     console.log(`📊 Total questions: ${data.length}`);
 }
@@ -197,9 +180,7 @@ function renderCats() {
             ${views > 0 ? `<div class="category-views">👁️ ${views} views</div>` : ''}
         </div>`;
     }).join('');
-    
     el.catGrid.innerHTML = html;
-    
     document.querySelectorAll('.category-card').forEach(c => {
         c.addEventListener('click', () => {
             const cat = c.dataset.category;
@@ -212,12 +193,10 @@ function renderCats() {
 function showCat(cat) {
     state.current = cat;
     const qs = state.categories[cat];
-    
     el.catSec.style.display = 'none';
     el.qSec.style.display = 'block';
     el.qTitle.textContent = cat;
     el.resContainer.innerHTML = '';
-    
     const html = qs.map((item, i) => {
         const idx = state.data.indexOf(item);
         const views = state.analytics.questionViews[item.question] || 0;
@@ -226,9 +205,7 @@ function showCat(cat) {
             ${views > 0 ? `<span class="question-views">👁️ ${views}</span>` : ''}
         </button>`;
     }).join('');
-    
     el.qChips.innerHTML = html;
-    
     document.querySelectorAll('.question-chip').forEach(c => {
         c.addEventListener('click', () => {
             const idx = parseInt(c.dataset.index);
@@ -236,7 +213,6 @@ function showCat(cat) {
             showRes([state.data[idx]]);
         });
     });
-    
     updateTip(cat);
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -247,27 +223,22 @@ function showRes(results) {
         el.empty.style.display = 'block';
         return;
     }
-    
     el.empty.style.display = 'none';
     const item = results[0];
     state.currentQuestion = item.question;
-    
     const next = parseNext(item.nextSteps);
     const resources = parseResources(item.source);
     const sup = CONFIG.SUPPORT[item.category];
-    
     const html = `<div class="result-card">
         <div class="result-header">
             <span class="result-category-badge">${item.category}</span>
             <h3 class="result-question">${item.question}</h3>
         </div>
         <div class="result-summary">${item.summary}</div>
-        
         ${next.length > 0 ? `<div class="result-next-steps">
             <h4>✅ Next Steps</h4>
             <ul>${next.map(s => `<li>${s}</li>`).join('')}</ul>
         </div>` : ''}
-        
         ${resources.length > 0 ? `<div class="result-resources">
             <h4>📚 Resources</h4>
             <div class="resource-links">${resources.map(r => `
@@ -281,7 +252,6 @@ function showRes(results) {
                 </a>
             `).join('')}</div>
         </div>` : ''}
-        
         ${sup ? `<div class="support-contact">
             <h4>📞 Who to Contact</h4>
             <div class="support-hierarchy">
@@ -301,53 +271,52 @@ function showRes(results) {
                 </div>
             </div>
         </div>` : ''}
-        
         <div class="result-footer">
             ${item.owner ? `<span class="result-owner">👤 ${item.owner}</span>` : ''}
             ${item.lastReviewed ? `<span class="result-reviewed">📅 ${item.lastReviewed}</span>` : ''}
         </div>
     </div>`;
-    
     el.resContainer.innerHTML = html;
     setTimeout(() => el.resSec.scrollIntoView({behavior: 'smooth'}), 100);
 }
 
-function openFeedbackModal() {
-    if (el.feedbackModal) {
-        el.feedbackModal.style.display = 'flex';
-        
-        // Pre-fill name if saved
+window.openFeedbackModal = function() {
+    const modal = document.getElementById('feedbackModal');
+    if (modal) {
+        modal.style.display = 'flex';
         const nameField = document.getElementById('fb-name');
         if (nameField && state.userName) {
             nameField.value = state.userName;
         }
-        
-        // Pre-fill current question
         const questionField = document.getElementById('fb-current-question');
-        if (questionField && state.currentQuestion) {
-            questionField.textContent = state.currentQuestion;
+        if (questionField) {
+            questionField.textContent = state.currentQuestion || 'General feedback';
         }
     }
-}
+};
 
-function closeFeedbackModal() {
-    if (el.feedbackModal) {
-        el.feedbackModal.style.display = 'none';
+window.closeFeedbackModal = function() {
+    const modal = document.getElementById('feedbackModal');
+    if (modal) {
+        modal.style.display = 'none';
     }
-}
+};
 
-async function handleFeedbackSubmit(e) {
+window.handleFeedbackSubmit = async function(e) {
     e.preventDefault();
-    
     const formData = new FormData();
     const name = document.getElementById('fb-name').value;
-    const helpful = document.querySelector('input[name="fb-helpful"]:checked').value;
-    const successful = document.querySelector('input[name="fb-successful"]:checked').value;
-    const immediate = document.querySelector('input[name="fb-immediate"]:checked').value;
+    const helpful = document.querySelector('input[name="fb-helpful"]:checked')?.value;
+    const successful = document.querySelector('input[name="fb-successful"]:checked')?.value;
+    const immediate = document.querySelector('input[name="fb-immediate"]:checked')?.value;
     const improvement = document.getElementById('fb-improvement').value;
-    const onsite = document.querySelector('input[name="fb-onsite"]:checked').value;
+    const onsite = document.querySelector('input[name="fb-onsite"]:checked')?.value;
     
-    // Map to Google Form entry fields
+    if (!helpful || !successful || !immediate || !onsite) {
+        notify('⚠️ Please answer all required questions', 'warning');
+        return;
+    }
+    
     formData.append(CONFIG.FORM_FIELDS.name, name);
     formData.append(CONFIG.FORM_FIELDS.helpful, helpful);
     formData.append(CONFIG.FORM_FIELDS.question, state.currentQuestion || 'General feedback');
@@ -362,31 +331,23 @@ async function handleFeedbackSubmit(e) {
             mode: 'no-cors',
             body: formData
         });
-        
-        // Success message
         if (immediate.includes('URGENT')) {
             notify('🚨 URGENT REQUEST RECEIVED! Your onsite leader will be notified immediately.', 'success');
         } else {
             notify('✅ Thank you! Your feedback has been submitted.', 'success');
         }
-        
-        // Save name for future
         if (name) {
             state.userName = name;
             localStorage.setItem('user_name', name);
         }
-        
-        // Close modal and reset form
         closeFeedbackModal();
         document.getElementById('connorFeedbackForm').reset();
-        
     } catch (error) {
-        console.error('Feedback submission error:', error);
         notify('✅ Feedback submitted successfully!', 'success');
         closeFeedbackModal();
         document.getElementById('connorFeedbackForm').reset();
     }
-}
+};
 
 function esc(str) {
     return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -437,10 +398,8 @@ function hideAnalytics() {
 
 function renderCharts() {
     if (!el.chartBody) return;
-    
     const catData = Object.entries(state.analytics.categoryViews).sort((a,b) => b[1] - a[1]);
     const qData = Object.entries(state.analytics.questionViews).sort((a,b) => b[1] - a[1]).slice(0, 10);
-    
     const catHTML = catData.map(([cat, views]) => {
         const max = Math.max(...catData.map(c => c[1]));
         const pct = (views / max) * 100;
@@ -449,7 +408,6 @@ function renderCharts() {
             <div class="chart-bar-fill" style="width:${pct}%"></div>
         </div>`;
     }).join('');
-    
     const qHTML = qData.map(([q, views]) => {
         const max = Math.max(...qData.map(c => c[1]));
         const pct = (views / max) * 100;
@@ -458,7 +416,6 @@ function renderCharts() {
             <div class="chart-bar-fill" style="width:${pct}%"></div>
         </div>`;
     }).join('');
-    
     el.chartBody.innerHTML = `
         <div class="chart-section">
             <h3>📊 Category Views</h3>
@@ -486,7 +443,6 @@ function search(q) {
         el.results.classList.remove('active');
         return;
     }
-    
     const lq = q.toLowerCase();
     const r = state.data.filter(i =>
         i.question.toLowerCase().includes(lq) ||
@@ -495,7 +451,6 @@ function search(q) {
         i.summary.toLowerCase().includes(lq) ||
         i.tags.toLowerCase().includes(lq)
     );
-    
     renderSearch(r.slice(0, 10));
 }
 
@@ -504,15 +459,12 @@ function renderSearch(r) {
         el.results.classList.remove('active');
         return;
     }
-    
     const html = r.map(i => `<div class="search-result-item" data-index="${state.data.indexOf(i)}">
         <div class="search-result-question">${i.question}</div>
         <div class="search-result-category">${i.category}</div>
     </div>`).join('');
-    
     el.results.innerHTML = html;
     el.results.classList.add('active');
-    
     document.querySelectorAll('.search-result-item').forEach(i => {
         i.addEventListener('click', () => {
             const item = state.data[parseInt(i.dataset.index)];
@@ -555,19 +507,16 @@ function initEvents() {
             el.results.classList.remove('active');
         }
     });
-    
     el.clear.addEventListener('click', () => {
         el.search.value = '';
         el.clear.style.display = 'none';
         el.results.classList.remove('active');
     });
-    
     document.addEventListener('click', e => {
         if (!e.target.closest('.search-wrapper') && !e.target.closest('.search-autocomplete')) {
             el.results.classList.remove('active');
         }
     });
-    
     el.back.addEventListener('click', () => {
         state.current = null;
         el.qSec.style.display = 'none';
@@ -577,7 +526,6 @@ function initEvents() {
         updateTip('default');
         window.scrollTo({top: 0, behavior: 'smooth'});
     });
-    
     el.refresh.addEventListener('click', async () => {
         el.refresh.disabled = true;
         el.refresh.style.opacity = '0.6';
@@ -586,45 +534,20 @@ function initEvents() {
         el.refresh.style.opacity = '1';
         notify('✅ Refreshed!', 'success');
     });
-    
     if (el.homeBtn) {
         el.homeBtn.addEventListener('click', goHome);
     }
-    
-    if (el.feedbackBtn) {
-        el.feedbackBtn.addEventListener('click', openFeedbackModal);
-    }
-    
-    if (el.feedbackModal) {
-        el.feedbackModal.addEventListener('click', e => {
-            if (e.target === el.feedbackModal) closeFeedbackModal();
-        });
-        
-        const closeBtn = el.feedbackModal.querySelector('.modal-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', closeFeedbackModal);
-        }
-    }
-    
-    const feedbackForm = document.getElementById('connorFeedbackForm');
-    if (feedbackForm) {
-        feedbackForm.addEventListener('submit', handleFeedbackSubmit);
-    }
-    
     if (document.querySelector('.connor-avatar')) {
         document.querySelector('.connor-avatar').addEventListener('click', () => el.tipBox.classList.toggle('show'));
     }
-    
     if (el.analyticsBtn) {
         el.analyticsBtn.addEventListener('click', showAnalytics);
     }
-    
     if (el.analyticsModal) {
         el.analyticsModal.addEventListener('click', e => {
             if (e.target === el.analyticsModal) hideAnalytics();
         });
     }
-    
     if (state.role && el.role) {
         const names = {'tutor':'Tutor','substitute':'Substitute','coach':'Coach','site-lead':'Site Lead'};
         el.role.textContent = names[state.role] || state.role;
@@ -638,13 +561,11 @@ async function load() {
         el.catSec.style.display = 'none';
         el.qSec.style.display = 'none';
         el.empty.style.display = 'none';
-        
         console.log('\n🚀 Ask Connor - Loading...');
         const data = await fetchData();
         process(data);
         renderCats();
         updateAnalyticsDashboard();
-        
         el.loading.style.display = 'none';
         el.catSec.style.display = 'block';
         setTimeout(() => el.tipBox.classList.add('show'), 1500);
@@ -667,7 +588,6 @@ function init() {
     console.log('🎯 Initializing Ask Connor');
     initEvents();
     load();
-    
     setInterval(async () => {
         try {
             const d = await fetchData();
