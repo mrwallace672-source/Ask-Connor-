@@ -3,22 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ask Connor | NJTC Tutoring Knowledge Base</title>
+    <title>Ask Connor | NJTC Knowledge Base</title>
+    <meta name="description" content="New Jersey Tutoring Corps Knowledge Base - Instant answers to tutor questions">
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Premium Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
+    
+    <!-- HEADER -->
     <header class="app-header">
         <div class="container">
             <div class="header-content">
                 <div class="logo-section">
-                    <div class="connor-icon">
-                        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="20" cy="20" r="18" fill="#003366"/>
-                            <text x="20" y="27" text-anchor="middle" fill="#FFB81C" font-size="20" font-weight="bold" font-family="Arial">C</text>
+                    <div class="connor-icon-header">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="headerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#003366;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#002244;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <ellipse cx="50" cy="60" rx="35" ry="30" fill="url(#headerGradient)"/>
+                            <circle cx="50" cy="35" r="25" fill="url(#headerGradient)"/>
+                            <circle cx="42" cy="32" r="4" fill="#FFB81C"/>
+                            <circle cx="58" cy="32" r="4" fill="#FFB81C"/>
+                            <path d="M 40 40 Q 50 45 60 40" stroke="#FFB81C" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            <line x1="50" y1="10" x2="50" y2="15" stroke="#FFB81C" stroke-width="2"/>
+                            <circle cx="50" cy="8" r="3" fill="#FFB81C"/>
                         </svg>
                     </div>
                     <div class="header-text">
@@ -26,7 +41,7 @@
                         <p class="tagline">Your High-Impact Tutoring Knowledge Partner</p>
                     </div>
                 </div>
-                <button id="refreshBtn" class="refresh-btn" title="Refresh data from Google Sheet">
+                <button id="refreshBtn" class="refresh-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
                     </svg>
@@ -36,10 +51,11 @@
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- MAIN CONTENT -->
     <main class="main-content">
         <div class="container">
-            <!-- Search Section -->
+            
+            <!-- SEARCH -->
             <section class="search-section">
                 <div class="search-wrapper">
                     <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -47,7 +63,7 @@
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
                     <input 
-                        type="text" 
+                        type="search" 
                         id="searchInput" 
                         placeholder="Search questions, keywords, or topics..."
                         autocomplete="off"
@@ -62,15 +78,13 @@
                 <div id="searchResults" class="search-autocomplete"></div>
             </section>
 
-            <!-- Category Section -->
+            <!-- CATEGORIES -->
             <section id="categorySection" class="category-section">
                 <h2 class="section-title">Explore by Category</h2>
-                <div id="categoryGrid" class="category-grid">
-                    <!-- Categories loaded dynamically -->
-                </div>
+                <div id="categoryGrid" class="category-grid"></div>
             </section>
 
-            <!-- Guided Questions Section -->
+            <!-- QUESTIONS -->
             <section id="questionsSection" class="questions-section" style="display: none;">
                 <div class="questions-header">
                     <button id="backBtn" class="back-btn">
@@ -81,25 +95,21 @@
                     </button>
                     <h2 id="categoryTitle" class="section-title"></h2>
                 </div>
-                <div id="questionChips" class="question-chips">
-                    <!-- Question chips loaded dynamically -->
-                </div>
+                <div id="questionChips" class="question-chips"></div>
             </section>
 
-            <!-- Results Section -->
+            <!-- RESULTS -->
             <section id="resultsSection" class="results-section">
-                <div id="resultsContainer" class="results-container">
-                    <!-- Result cards loaded dynamically -->
-                </div>
+                <div id="resultsContainer" class="results-container"></div>
             </section>
 
-            <!-- Loading State -->
+            <!-- LOADING -->
             <div id="loadingState" class="loading-state">
                 <div class="loading-spinner"></div>
-                <p>Loading knowledge base...</p>
+                <p>Loading knowledge base from Google Sheets...</p>
             </div>
 
-            <!-- Empty State -->
+            <!-- EMPTY STATE -->
             <div id="emptyState" class="empty-state" style="display: none;">
                 <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="11" cy="11" r="8"/>
@@ -108,10 +118,11 @@
                 <h3>No results found</h3>
                 <p>Try adjusting your search or browse by category</p>
             </div>
+
         </div>
     </main>
 
-    <!-- Connor Bot Assistant -->
+    <!-- CONNOR BOT -->
     <div id="connorBot" class="connor-bot">
         <div class="connor-avatar">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -138,5 +149,6 @@
     </div>
 
     <script src="app.js"></script>
+    
 </body>
 </html>
