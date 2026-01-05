@@ -4,15 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Ask Connor | NJTC Knowledge Base</title>
-    <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; overflow-x: hidden; }
+        :root {
+            --navy: #003366;
+            --gold: #FFB81C;
+            --font-display: 'Epilogue', system-ui, sans-serif;
+            --font-body: 'Crimson Pro', Georgia, serif;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            margin: 0;
+            overflow-x: hidden;
+            font-family: var(--font-body);
+        }
         
         .welcome-hero {
-            background: linear-gradient(135deg, #003366 0%, #001a33 100%);
+            background: linear-gradient(135deg, var(--navy) 0%, #001a33 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -43,12 +55,25 @@
             z-index: 1;
         }
         
-        .logo-large {
-            max-width: 600px;
-            width: 90%;
-            height: auto;
-            margin: 0 auto 3rem;
+        .brand-header {
+            margin-bottom: 3rem;
             animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .njtc-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .brand-divider {
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), transparent, var(--gold));
+            margin: 1rem auto;
         }
         
         .welcome-title {
@@ -60,12 +85,47 @@
             animation: fadeInUp 0.8s ease-out 0.2s both;
         }
         
+        .connor-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 184, 28, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 2px solid var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .connor-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--navy), #004d99);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            border: 3px solid var(--gold);
+        }
+        
+        .connor-text {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        
         .welcome-subtitle {
             font-family: var(--font-body);
             font-size: clamp(1.125rem, 2.5vw, 1.5rem);
-            color: #FFB81C;
+            color: var(--gold);
             margin: 0 0 3rem;
             animation: fadeInUp 0.8s ease-out 0.4s both;
+            font-style: italic;
         }
         
         .role-selector {
@@ -94,7 +154,7 @@
             left: 0;
             right: 0;
             height: 6px;
-            background: linear-gradient(90deg, #003366, #FFB81C);
+            background: linear-gradient(90deg, var(--navy), var(--gold));
             transform: scaleX(0);
             transition: transform 0.3s ease;
         }
@@ -102,7 +162,7 @@
         .role-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(0, 51, 102, 0.3);
-            border-color: #FFB81C;
+            border-color: var(--gold);
         }
         
         .role-card:hover::before {
@@ -118,7 +178,7 @@
             font-family: var(--font-display);
             font-size: 1.5rem;
             font-weight: 700;
-            color: #003366;
+            color: var(--navy);
             margin: 0 0 0.5rem;
         }
         
@@ -150,7 +210,7 @@
         
         .role-highlights li::before {
             content: '→';
-            color: #FFB81C;
+            color: var(--gold);
             font-weight: bold;
             margin-right: 0.5rem;
         }
@@ -174,8 +234,8 @@
         
         .skip-button:hover {
             background: rgba(255, 255, 255, 0.1);
-            border-color: #FFB81C;
-            color: #FFB81C;
+            border-color: var(--gold);
+            color: var(--gold);
         }
         
         @keyframes fadeInUp {
@@ -197,17 +257,32 @@
             .welcome-container {
                 padding: 2rem 1rem;
             }
+            
+            .njtc-title {
+                font-size: 1.75rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="welcome-hero">
         <div class="welcome-container">
-            <img src="NJTC_LOGO.png" alt="NJTC Logo" class="logo-large" id="njtcLogo">
             
-            <h1 class="welcome-title">Welcome to Ask Connor</h1>
+            <!-- NJTC BRANDING -->
+            <div class="brand-header">
+                <h1 class="njtc-title">New Jersey Tutoring Corps</h1>
+                <div class="brand-divider"></div>
+            </div>
+            
+            <!-- ASK CONNOR BADGE -->
+            <div class="connor-badge">
+                <div class="connor-icon">C</div>
+                <div class="connor-text">Ask Connor</div>
+            </div>
+            
             <p class="welcome-subtitle">Your High-Impact Tutoring Knowledge Partner</p>
             
+            <!-- ROLE SELECTION -->
             <div class="role-selector">
                 <div class="role-card" data-role="tutor" onclick="selectRole('tutor')">
                     <div class="role-icon">👨‍🏫</div>
@@ -259,23 +334,11 @@
     </div>
 
     <script>
-        // Load logo from localStorage or use placeholder
-        const logoImg = document.getElementById('njtcLogo');
-        const savedLogo = localStorage.getItem('njtc_logo');
-        if (savedLogo) {
-            logoImg.src = savedLogo;
-        }
-        
         function selectRole(role) {
-            // Save role to localStorage
             localStorage.setItem('user_role', role);
-            
-            // Add animation
             const card = document.querySelector(`[data-role="${role}"]`);
             card.style.transform = 'scale(1.05)';
             card.style.boxShadow = '0 30px 60px rgba(255, 184, 28, 0.4)';
-            
-            // Navigate to main app after brief delay
             setTimeout(() => {
                 window.location.href = 'app.html';
             }, 400);
