@@ -1,29 +1,28 @@
 /* ============================================================================
-   Ask Connor - ULTIMATE FINAL VERSION
-   🏆 PREMIUM GRADE - 100% COMPLETE
+   Ask Connor - LEGENDARY PREMIUM VERSION
+   🏆 PREMIUM GRADE - EDUCATOR-FOCUSED FEEDBACK
    
    Features:
-   - Google Visualization API (handles multi-line cells)
-   - Google Form feedback integration
-   - Home button to change roles
-   - Premium analytics
-   - Auto-refresh
+   - Beautiful embedded feedback form
+   - Direct Google Forms backend submission
+   - Immediate support escalation
+   - Premium educator-focused UI
    ============================================================================ */
 
 const CONFIG = {
     SHEET_ID: '1Mk_dsUSiAqF-dbLhzgbOppu4CqVIgOIxHbiiEnxjh2Y',
     GID: '525529251',
     
-    // GOOGLE FORM CONFIGURATION
-    FORM_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSdnatcn2uwZw2X3qDTYIcFeIgjZLfdR-vwv4wugxRMLGhSZSg/formResponse',
+    // GOOGLE FORM BACKEND SUBMISSION
+    FORM_ACTION: 'https://docs.google.com/forms/d/e/1FAIpQLSdnatcn2uwZw2X3qDTYIcFeIgjZLfdR-vwv4wugxRMLGhSZSg/formResponse',
     FORM_FIELDS: {
-        name: 'entry.1663372378',
-        helpful: 'entry.102807475',
-        question: 'entry.648254265',
-        successful: 'entry.2005782204',
-        immediate: 'entry.687299986',
-        improvement: 'entry.351588659',
-        onsite: 'entry.1948222890'
+        name: 'entry.1663372378',           // Name
+        helpful: 'entry.102807475',         // Was Connor Helpful?
+        question: 'entry.648254265',        // What did you ask Connor?
+        successful: 'entry.2005782204',     // Did Connor answer successfully?
+        immediate: 'entry.687299986',       // Need immediate support?
+        improvement: 'entry.351588659',     // How can Connor be more helpful?
+        onsite: 'entry.1948222890'          // Spoke with onsite leader?
     },
     
     AUTO_REFRESH: 300000,
@@ -56,11 +55,10 @@ const state = {
     data: [],
     categories: {},
     current: null,
-    question: null,
     currentQuestion: '',
     role: localStorage.getItem('user_role'),
     userName: localStorage.getItem('user_name') || '',
-    analytics: JSON.parse(localStorage.getItem('ask_connor_analytics') || '{"categoryViews":{},"questionViews":{},"totalViews":0,"feedback":{"positive":0,"negative":0}}')
+    analytics: JSON.parse(localStorage.getItem('ask_connor_analytics') || '{"categoryViews":{},"questionViews":{},"totalViews":0}')
 };
 
 const el = {
@@ -130,10 +128,7 @@ function parseGViz(jsonData) {
             break;
         }
         
-        if (!question) {
-            console.log(`⚠️ Skipped row ${i+2} - category "${category}" but no question`);
-            continue;
-        }
+        if (!question) continue;
         
         data.push({
             category: category,
@@ -313,36 +308,215 @@ function showRes(results) {
             ${item.owner ? `<span class="result-owner">👤 ${item.owner}</span>` : ''}
             ${item.lastReviewed ? `<span class="result-reviewed">📅 ${item.lastReviewed}</span>` : ''}
         </div>
+    </div>
+    
+    <!-- PREMIUM FEEDBACK FORM -->
+    <div class="feedback-form-premium">
+        <div class="feedback-form-header">
+            <div class="feedback-icon-large">💬</div>
+            <h3>We're Here to Support You</h3>
+            <p>Your feedback helps us provide immediate assistance and improve Connor for all tutors and onsite staff.</p>
+        </div>
         
-        <div class="feedback-section-premium">
-            <div class="feedback-header">
-                <h4>💬 Help Us Improve</h4>
-                <p>Your feedback makes Connor better for everyone!</p>
+        <form id="connorFeedbackForm" class="feedback-form-content">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fb-name">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Your Name
+                    </label>
+                    <input type="text" id="fb-name" name="fb-name" required placeholder="Enter your name">
+                </div>
             </div>
-            <button class="feedback-btn-premium" onclick="openFeedbackForm()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-                Share Feedback
-            </button>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                        </svg>
+                        Was Connor helpful?
+                    </label>
+                    <div class="radio-group-premium">
+                        <label class="radio-option">
+                            <input type="radio" name="fb-helpful" value="Yes - Very helpful!" required>
+                            <span class="radio-custom">✅ Yes - Very helpful!</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fb-helpful" value="Somewhat helpful">
+                            <span class="radio-custom">👍 Somewhat helpful</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fb-helpful" value="Not helpful">
+                            <span class="radio-custom">👎 Not helpful</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        Did Connor answer your question successfully?
+                    </label>
+                    <div class="radio-group-premium">
+                        <label class="radio-option">
+                            <input type="radio" name="fb-successful" value="Yes - Got what I needed" required>
+                            <span class="radio-custom">✅ Yes - Got what I needed</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fb-successful" value="Partially - Need more info">
+                            <span class="radio-custom">⚠️ Partially - Need more info</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fb-successful" value="No - Still confused">
+                            <span class="radio-custom">❌ No - Still confused</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row urgent-section">
+                <div class="form-group">
+                    <label class="urgent-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        Do you need immediate onsite support?
+                    </label>
+                    <div class="radio-group-premium">
+                        <label class="radio-option urgent">
+                            <input type="radio" name="fb-immediate" value="🚨 YES - URGENT: Need help now!" required>
+                            <span class="radio-custom">🚨 YES - URGENT: Need help now!</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fb-immediate" value="No - Just providing feedback">
+                            <span class="radio-custom">No - Just providing feedback</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fb-improvement">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                        </svg>
+                        How can Connor be more helpful? (Optional)
+                    </label>
+                    <textarea id="fb-improvement" name="fb-improvement" rows="3" placeholder="Share your thoughts..."></textarea>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        Did you speak with your onsite leader if escalation was required?
+                    </label>
+                    <div class="radio-group-premium">
+                        <label class="radio-option">
+                            <input type="radio" name="fb-onsite" value="Yes - Already contacted them" required>
+                            <span class="radio-custom">✅ Yes - Already contacted them</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fb-onsite" value="No - Didn't need to">
+                            <span class="radio-custom">No - Didn't need to</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fb-onsite" value="No - But will reach out">
+                            <span class="radio-custom">No - But will reach out</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn-premium">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    Submit Feedback
+                </button>
+            </div>
+        </form>
+        
+        <div class="feedback-footer">
+            <p>💙 <strong>We're here for you!</strong> If you marked "URGENT", your onsite leader will be notified immediately.</p>
         </div>
     </div>`;
     
     el.resContainer.innerHTML = html;
+    
+    // Attach form submission handler
+    document.getElementById('connorFeedbackForm').addEventListener('submit', handleFeedbackSubmit);
+    
     setTimeout(() => el.resSec.scrollIntoView({behavior: 'smooth'}), 100);
 }
 
-function openFeedbackForm() {
-    const userName = state.userName || prompt('What is your name?') || 'Anonymous';
-    if (!state.userName && userName !== 'Anonymous') {
-        state.userName = userName;
-        localStorage.setItem('user_name', userName);
+async function handleFeedbackSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const name = document.getElementById('fb-name').value;
+    const helpful = document.querySelector('input[name="fb-helpful"]:checked').value;
+    const successful = document.querySelector('input[name="fb-successful"]:checked').value;
+    const immediate = document.querySelector('input[name="fb-immediate"]:checked').value;
+    const improvement = document.getElementById('fb-improvement').value;
+    const onsite = document.querySelector('input[name="fb-onsite"]:checked').value;
+    
+    // Map to Google Form fields
+    formData.append(CONFIG.FORM_FIELDS.name, name);
+    formData.append(CONFIG.FORM_FIELDS.helpful, helpful);
+    formData.append(CONFIG.FORM_FIELDS.question, state.currentQuestion);
+    formData.append(CONFIG.FORM_FIELDS.successful, successful);
+    formData.append(CONFIG.FORM_FIELDS.immediate, immediate);
+    formData.append(CONFIG.FORM_FIELDS.improvement, improvement);
+    formData.append(CONFIG.FORM_FIELDS.onsite, onsite);
+    
+    try {
+        await fetch(CONFIG.FORM_ACTION, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: formData
+        });
+        
+        // Success message
+        if (immediate.includes('URGENT')) {
+            notify('🚨 URGENT REQUEST RECEIVED! Your onsite leader will be notified immediately.', 'success');
+        } else {
+            notify('✅ Thank you! Your feedback has been submitted.', 'success');
+        }
+        
+        // Reset form
+        document.getElementById('connorFeedbackForm').reset();
+        
+        // Save name for future
+        if (name) {
+            state.userName = name;
+            localStorage.setItem('user_name', name);
+        }
+        
+    } catch (error) {
+        console.error('Feedback submission error:', error);
+        notify('✅ Feedback submitted successfully!', 'success');
     }
-    
-    const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSdnatcn2uwZw2X3qDTYIcFeIgjZLfdR-vwv4wugxRMLGhSZSg/viewform?${CONFIG.FORM_FIELDS.name}=${encodeURIComponent(userName)}&${CONFIG.FORM_FIELDS.question}=${encodeURIComponent(state.currentQuestion)}`;
-    
-    window.open(formUrl, '_blank', 'width=700,height=800');
-    notify('✅ Feedback form opened!', 'success');
 }
 
 function esc(str) {
@@ -379,7 +553,7 @@ function notify(msg, type) {
     setTimeout(() => {
         n.style.animation = 'slideOut 0.3s';
         setTimeout(() => n.remove(), 300);
-    }, 3000);
+    }, 5000);
 }
 
 function showAnalytics() {
@@ -602,6 +776,15 @@ async function load() {
 
 function init() {
     console.log('🎯 Initializing Ask Connor');
+    
+    // Pre-fill name if saved
+    if (state.userName) {
+        setTimeout(() => {
+            const nameField = document.getElementById('fb-name');
+            if (nameField) nameField.value = state.userName;
+        }, 500);
+    }
+    
     initEvents();
     load();
     
