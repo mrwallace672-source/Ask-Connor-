@@ -1843,3 +1843,414 @@ body {
         transform: translateY(0);
     }
 }
+
+/* ============================================================================
+   FLOATING FEEDBACK BUTTON + MODAL POPUP
+   🏆 PREMIUM GRADE - NO REDIRECTS
+   ============================================================================ */
+
+/* FLOATING BUTTON */
+.feedback-floating-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+    color: var(--navy-primary);
+    border: none;
+    border-radius: 50px;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(255, 184, 28, 0.4);
+    transition: var(--transition-base);
+    z-index: 999;
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 8px 32px rgba(255, 184, 28, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 12px 48px rgba(255, 184, 28, 0.6);
+        transform: scale(1.05);
+    }
+}
+
+.feedback-floating-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 16px 48px rgba(255, 184, 28, 0.6);
+    animation: none;
+}
+
+.feedback-floating-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* MODAL OVERLAY */
+.feedback-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* MODAL CONTENT */
+.feedback-modal-content {
+    background: white;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* MODAL HEADER */
+.feedback-modal-header {
+    background: linear-gradient(135deg, var(--navy-primary), var(--navy-secondary));
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 24px 24px 0 0;
+    text-align: center;
+    position: relative;
+}
+
+.feedback-modal-header .feedback-icon-large {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+}
+
+.feedback-modal-header h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+}
+
+.feedback-modal-header p {
+    font-size: 1.125rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* MODAL BODY */
+.feedback-modal-body {
+    padding: 2rem;
+}
+
+.current-question-display {
+    background: linear-gradient(135deg, rgba(255, 184, 28, 0.1), rgba(255, 184, 28, 0.05));
+    border-left: 4px solid var(--gold-primary);
+    padding: 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.current-question-display strong {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--navy-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.current-question-display p {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--navy-primary);
+    margin: 0.5rem 0 0 0;
+}
+
+/* FORM STYLING IN MODAL */
+#connorFeedbackForm .form-group {
+    margin-bottom: 1.75rem;
+}
+
+#connorFeedbackForm label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy-primary);
+    margin-bottom: 0.75rem;
+}
+
+#connorFeedbackForm label svg {
+    width: 20px;
+    height: 20px;
+    color: var(--gold-primary);
+    flex-shrink: 0;
+}
+
+#connorFeedbackForm input[type="text"],
+#connorFeedbackForm textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: var(--transition-base);
+}
+
+#connorFeedbackForm input[type="text"]:focus,
+#connorFeedbackForm textarea:focus {
+    outline: none;
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 0 4px rgba(255, 184, 28, 0.1);
+}
+
+#connorFeedbackForm textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* RADIO BUTTONS IN MODAL */
+.radio-group-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.radio-option {
+    position: relative;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.radio-custom {
+    display: block;
+    padding: 0.875rem 1.25rem;
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--navy-primary);
+    transition: all 0.2s ease;
+}
+
+.radio-option:hover .radio-custom {
+    border-color: var(--gold-primary);
+    transform: translateX(4px);
+}
+
+.radio-option input[type="radio"]:checked + .radio-custom {
+    background: linear-gradient(135deg, rgba(255, 184, 28, 0.15), rgba(255, 184, 28, 0.05));
+    border-color: var(--gold-primary);
+    box-shadow: 0 4px 12px rgba(255, 184, 28, 0.2);
+}
+
+/* URGENT SECTION IN MODAL */
+.urgent-section {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.08), rgba(255, 107, 107, 0.05));
+    border: 2px solid rgba(220, 53, 69, 0.3);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+}
+
+.urgent-label {
+    color: #dc3545 !important;
+}
+
+.urgent-label svg {
+    color: #dc3545 !important;
+}
+
+.radio-option.urgent input[type="radio"]:checked + .radio-custom {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15), rgba(255, 107, 107, 0.08));
+    border-color: #dc3545;
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
+    animation: urgent-pulse 1.5s infinite;
+}
+
+@keyframes urgent-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* SUBMIT BUTTON IN MODAL */
+#connorFeedbackForm .submit-btn-premium {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.25rem 2rem;
+    background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+    color: var(--navy-primary);
+    border: none;
+    border-radius: 14px;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition-base);
+    box-shadow: 0 8px 24px rgba(255, 184, 28, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 1.5rem;
+}
+
+#connorFeedbackForm .submit-btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(255, 184, 28, 0.4);
+    background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+}
+
+#connorFeedbackForm .submit-btn-premium svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* FEEDBACK FOOTER IN MODAL */
+.feedback-modal-body .feedback-footer {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(0, 51, 102, 0.05), rgba(0, 102, 204, 0.05));
+    border-radius: 10px;
+    text-align: center;
+}
+
+.feedback-modal-body .feedback-footer p {
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    color: var(--navy-primary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    .feedback-floating-btn {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.875rem 1.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .feedback-floating-btn span {
+        display: none;
+    }
+    
+    .feedback-floating-btn svg {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .feedback-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .feedback-modal-header {
+        padding: 2rem 1.5rem;
+    }
+    
+    .feedback-modal-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .feedback-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .radio-custom {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    #connorFeedbackForm .submit-btn-premium {
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+    }
+}
+
+/* SCROLLBAR STYLING FOR MODAL */
+.feedback-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.feedback-modal-content::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 0 24px 24px 0;
+}
+
+.feedback-modal-content::-webkit-scrollbar-thumb {
+    background: var(--gold-primary);
+    border-radius: 10px;
+}
+
+.feedback-modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--gold-light);
+}
