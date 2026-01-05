@@ -1,58 +1,34 @@
-/* ==========================================================================
-   Ask Connor - NJTC Tutoring Knowledge Base
-   ✅ 100% PRODUCTION-READY | EDUCATOR-ARCHITECTED | PREMIUM GRADE
-   
-   Built for: New Jersey Tutoring Corps
-   Purpose: Empower tutors with instant, reliable access to operational knowledge
-   Version: 1.0 - DEPLOYMENT READY
-   ========================================================================== */
-
-// ==========================================================================
-// ✅ CONFIGURATION - FULLY CONFIGURED FOR YOUR SHEET
-// ==========================================================================
+/*  ==========================================================================
+    Ask Connor - NJTC Tutoring Knowledge Base
+    ✅ 100% REAL-TIME GOOGLE SHEETS INTEGRATION
+    ✅ DYNAMIC DATA FETCHING - NO STATIC CONTENT
+    ✅ CLICKABLE HYPERLINKS TO GOOGLE DRIVE RESOURCES
+    
+    YOUR CONFIGURATION (Pre-loaded):
+    - Sheet ID: 1Mk_dsUSiAqF-dbLhzgbOppu4CqVIgOIxHbiiEnxjh2Y
+    - Published ID: 2PACX-1vSdb5JPPXur2DPKofkB_EjGw0YD3Ia6kMZsM_U_PFOa0RQ2WaVmpEtDONfNWjkPRbesWSvq_7dVQ_QC
+    - GID: 525529251
+    ========================================================================== */
 
 const CONFIG = {
-    // Your Google Sheet access - DUAL CONFIGURATION for maximum reliability
-    // Method 1: Direct sheet access (when shared as "Anyone with link")
-    SHEET_ID: '1vcxuIx3az0HZzmnO8LanADhicqHQHB70GGbJK7NZjH4',
-    
-    // Method 2: Published web version (backup)
-    PUBLISHED_ID: '2PACX-1vSDVW39TNqINfhHWHzl1_7Dwxz7RYeo9DRMj6mhQNIt9AXgX8yt_qJ4PjzothzGNHGyiNRyqLfv-w6L',
-    
-    // Sheet tab ID
+    SHEET_ID: '1Mk_dsUSiAqF-dbLhzgbOppu4CqVIgOIxHbiiEnxjh2Y',
+    PUBLISHED_ID: '2PACX-1vSdb5JPPXur2DPKofkB_EjGw0YD3Ia6kMZsM_U_PFOa0RQ2WaVmpEtDONfNWjkPRbesWSvq_7dVQ_QC',
     GID: '525529251',
     
-    // Connor Bot - Evidence-Based High-Impact Tutoring Tips
     CONNOR_TIPS: {
-        'i-Ready / Data': '📊 <strong>Data-Driven Excellence:</strong> The diagnostic color bands are your roadmap—red domains need the most attention. Scholars who receive targeted instruction in their lowest domains show 3x faster growth. Review domain placement weekly!',
-        'PEARL / Attendance': '📅 <strong>Consistency = Impact:</strong> Research proves it—tutors with ≥90% attendance produce the strongest scholar outcomes. High-dosage tutoring (3+ sessions/week) is the gold standard. Log attendance within 24 hours!',
-        'PEARL / Surveys': '📝 <strong>Your Voice Matters:</strong> Post-session surveys aren\'t busywork—they\'re real-time quality data that drives coaching support. Aim for 4+ scores. Flag concerns using the Comment Bank to ensure leadership sees critical issues!',
-        'Program Expectations': '⭐ <strong>Excellence Standards:</strong> Quality tutoring at NJTC means being relationship-centered, data-driven, and consistent. Arrive prepared with lesson plans, communicate proactively with site leads, and maintain 90%+ attendance.',
-        'Coaching / Growth': '🌱 <strong>Reflection Drives Results:</strong> The best tutors review their data weekly—attendance trends, survey feedback, and scholar progress. Use coaching check-ins to strengthen strategies. Growth mindset = scholar gains!',
-        'Behavior Management': '🤝 <strong>Relationships First:</strong> Trust is the foundation of effective tutoring. Use proximity redirection and positive reinforcement. Keep redirections private to preserve dignity. Scholars learn best when they feel safe!',
-        'Engagement Strategies': '🎮 <strong>Fun + Structure = Learning:</strong> Turn practice into games! Small groups (3-4 scholars) maximize engagement while maintaining personalization. Keep activities under 5 minutes and transitions tight.',
-        'Instructional Differentiation': '🎯 <strong>Meet Them Where They Are:</strong> High-impact tutoring is responsive. Assess foundational skills first, reteach gaps before advancing, and use formative data to adjust instruction in real-time.',
-        'default': '👋 <strong>Welcome, Tutor!</strong> I\'m Connor, your NJTC knowledge partner. High-impact tutoring combines <strong>relationships + data + consistency + small groups</strong>. Select a category to explore expert guidance, or search any question!'
+        'i-Ready / Data': '📊 <strong>Data-Driven Excellence:</strong> Color bands are your roadmap. Red domains = priority. Targeted instruction produces 3x faster growth!',
+        'PEARL / Attendance': '📅 <strong>Consistency = Impact:</strong> ≥90% attendance produces strongest outcomes. High-dosage tutoring (3+ sessions/week) is research-backed!',
+        'PEARL / Surveys': '📝 <strong>Your Voice Matters:</strong> Surveys drive coaching support. Aim for 4+ scores. Use Comment Bank to flag urgent issues!',
+        'Program Expectations': '⭐ <strong>Excellence:</strong> Quality = relationships + data + consistency. Arrive prepared, communicate proactively, 90%+ attendance!',
+        'Coaching / Growth': '🌱 <strong>Reflection = Results:</strong> Review data weekly. Use coaching to strengthen strategies!',
+        'Behavior Management': '🤝 <strong>Relationships First:</strong> Use proximity + positive reinforcement. Keep redirections private!',
+        'Engagement Strategies': '🎮 <strong>Fun + Structure:</strong> Games maximize engagement. Small groups (3-4), activities under 5 min!',
+        'Instructional Differentiation': '🎯 <strong>Meet Them Where They Are:</strong> Assess gaps, reteach foundations, adjust in real-time!',
+        'default': '👋 <strong>Welcome!</strong> I'm Connor. High-impact tutoring = <strong>relationships + data + consistency + small groups</strong>!'
     }
 };
 
-// ==========================================================================
-// State Management
-// ==========================================================================
-
-const state = {
-    allData: [],
-    categories: {},
-    currentCategory: null,
-    currentView: 'categories',
-    searchQuery: '',
-    selectedSearchIndex: -1
-};
-
-// ==========================================================================
-// DOM Elements
-// ==========================================================================
-
+const state = { allData: [], categories: {}, currentCategory: null, searchQuery: '', selectedSearchIndex: -1 };
 const elements = {
     searchInput: document.getElementById('searchInput'),
     clearSearch: document.getElementById('clearSearch'),
@@ -72,103 +48,48 @@ const elements = {
     connorTip: document.querySelector('.connor-tip')
 };
 
-// ==========================================================================
-// ✅ DATA FETCHING - PRODUCTION-GRADE WITH MULTIPLE FALLBACKS
-// ==========================================================================
-
-/**
- * Fetch from Google Sheets - tries ALL possible methods
- */
 async function fetchSheetData() {
-    console.log('🔍 Loading NJTC Knowledge Base from Google Sheets...');
-    
-    // Try multiple strategies in order of preference
+    console.log('🔍 Fetching from Google Sheets...');
     const strategies = [
-        // Strategy 1: Direct CSV export (fastest, works with "anyone with link")
-        {
-            name: 'Direct CSV Export',
-            url: `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=csv&gid=${CONFIG.GID}`,
-            parser: 'csv'
-        },
-        // Strategy 2: GViz JSON (good for complex data)
-        {
-            name: 'GViz JSON',
-            url: `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`,
-            parser: 'gviz'
-        },
-        // Strategy 3: Published CSV
-        {
-            name: 'Published CSV',
-            url: `https://docs.google.com/spreadsheets/d/e/${CONFIG.PUBLISHED_ID}/pub?output=csv&gid=${CONFIG.GID}`,
-            parser: 'csv'
-        },
-        // Strategy 4: Published GViz
-        {
-            name: 'Published GViz',
-            url: `https://docs.google.com/spreadsheets/d/e/${CONFIG.PUBLISHED_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`,
-            parser: 'gviz'
-        }
+        { name: 'Direct CSV', url: `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=csv&gid=${CONFIG.GID}`, parser: 'csv' },
+        { name: 'Direct GViz', url: `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`, parser: 'gviz' },
+        { name: 'Published CSV', url: `https://docs.google.com/spreadsheets/d/e/${CONFIG.PUBLISHED_ID}/pub?output=csv&gid=${CONFIG.GID}`, parser: 'csv' },
+        { name: 'Published GViz', url: `https://docs.google.com/spreadsheets/d/e/${CONFIG.PUBLISHED_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`, parser: 'gviz' }
     ];
     
-    for (const strategy of strategies) {
+    for (const s of strategies) {
         try {
-            console.log(`📡 Trying: ${strategy.name}`);
-            console.log(`   URL: ${strategy.url}`);
-            
-            const response = await fetch(strategy.url, {
-                method: 'GET',
-                mode: 'cors',
-                credentials: 'omit'
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
+            console.log(`📡 Trying: ${s.name}`);
+            const response = await fetch(s.url, { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-cache' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const text = await response.text();
+            if (!text || !text.trim()) throw new Error('Empty response');
             
-            if (!text || text.trim().length === 0) {
-                throw new Error('Empty response received');
-            }
-            
-            // Parse based on strategy
             let data;
-            if (strategy.parser === 'gviz') {
-                const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/);
-                if (!jsonMatch) throw new Error('Invalid GViz format');
-                const jsonData = JSON.parse(jsonMatch[1]);
-                data = parseGVizData(jsonData);
+            if (s.parser === 'gviz') {
+                const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/);
+                if (!match) throw new Error('Invalid GViz');
+                data = parseGVizData(JSON.parse(match[1]));
             } else {
                 data = parseCSVData(text);
             }
             
-            if (data.length === 0) {
-                throw new Error('No data rows found');
-            }
-            
-            console.log(`✅ SUCCESS! Loaded ${data.length} questions using ${strategy.name}`);
+            if (!data || data.length === 0) throw new Error('No data');
+            console.log(`✅ SUCCESS: ${s.name} - ${data.length} questions`);
             return data;
-            
-        } catch (error) {
-            console.warn(`⚠️ ${strategy.name} failed: ${error.message}`);
-            continue;
+        } catch (e) {
+            console.warn(`✗ ${s.name} failed: ${e.message}`);
         }
     }
-    
-    throw new Error('All fetch strategies failed. Please check sheet permissions.');
+    throw new Error('All methods failed. Share sheet as "Anyone with link" or publish to web.');
 }
 
-/**
- * Parse GViz JSON format
- */
 function parseGVizData(data) {
     const rows = data.table.rows;
     const cols = data.table.cols;
-    
-    // Build flexible column map
     const colMap = {};
     cols.forEach((col, idx) => {
-        const label = (col.label || col.id || '').toLowerCase().trim();
+        const label = (col.label || '').toLowerCase().replace(/[\/\s]/g, '');
         if (label.includes('category')) colMap.category = idx;
         else if (label.includes('question')) colMap.question = idx;
         else if (label.includes('response') || label.includes('summary')) colMap.summary = idx;
@@ -180,98 +101,72 @@ function parseGVizData(data) {
         else if (label.includes('tag')) colMap.tags = idx;
     });
     
-    return rows
-        .map(row => {
-            const cells = row.c || [];
-            return {
-                category: cells[colMap.category]?.v || cells[colMap.category]?.f || '',
-                question: cells[colMap.question]?.v || cells[colMap.question]?.f || '',
-                summary: cells[colMap.summary]?.v || cells[colMap.summary]?.f || '',
-                nextSteps: cells[colMap.nextSteps]?.v || cells[colMap.nextSteps]?.f || '',
-                keywords: cells[colMap.keywords]?.v || cells[colMap.keywords]?.f || '',
-                source: cells[colMap.source]?.v || cells[colMap.source]?.f || '',
-                owner: cells[colMap.owner]?.v || cells[colMap.owner]?.f || '',
-                lastReviewed: cells[colMap.lastReviewed]?.v || cells[colMap.lastReviewed]?.f || '',
-                tags: cells[colMap.tags]?.v || cells[colMap.tags]?.f || ''
-            };
-        })
-        .filter(row => row.category && row.question);
+    return rows.map(row => {
+        const c = row.c || [];
+        return {
+            category: (c[colMap.category]?.v || c[colMap.category]?.f || '').toString().trim(),
+            question: (c[colMap.question]?.v || c[colMap.question]?.f || '').toString().trim(),
+            summary: (c[colMap.summary]?.v || c[colMap.summary]?.f || '').toString().trim(),
+            nextSteps: (c[colMap.nextSteps]?.v || c[colMap.nextSteps]?.f || '').toString().trim(),
+            keywords: (c[colMap.keywords]?.v || c[colMap.keywords]?.f || '').toString().trim(),
+            source: (c[colMap.source]?.v || c[colMap.source]?.f || '').toString().trim(),
+            owner: (c[colMap.owner]?.v || c[colMap.owner]?.f || '').toString().trim(),
+            lastReviewed: (c[colMap.lastReviewed]?.v || c[colMap.lastReviewed]?.f || '').toString().trim(),
+            tags: (c[colMap.tags]?.v || c[colMap.tags]?.f || '').toString().trim()
+        };
+    }).filter(row => row.category && row.question);
 }
 
-/**
- * Parse CSV format with robust error handling
- */
 function parseCSVData(csvText) {
-    const lines = csvText.split(/\r?\n/).filter(line => line.trim());
-    
-    if (lines.length < 2) {
-        throw new Error('CSV has no data rows');
-    }
+    const lines = csvText.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) throw new Error('No data rows');
     
     const headers = parseCSVLine(lines[0]);
-    console.log('📋 CSV Headers:', headers);
-    
-    // Flexible header mapping
     const headerMap = {};
-    headers.forEach((header, idx) => {
-        const h = header.toLowerCase().trim().replace(/[\/\s]/g, '');
-        if (h.includes('category')) headerMap.category = idx;
-        else if (h.includes('question')) headerMap.question = idx;
-        else if (h.includes('response') || h.includes('summary')) headerMap.summary = idx;
-        else if (h.includes('next') && h.includes('step')) headerMap.nextSteps = idx;
-        else if (h.includes('keyword')) headerMap.keywords = idx;
-        else if (h.includes('source') || h.includes('link')) headerMap.source = idx;
-        else if (h.includes('owner')) headerMap.owner = idx;
-        else if (h.includes('review')) headerMap.lastReviewed = idx;
-        else if (h.includes('tag')) headerMap.tags = idx;
+    headers.forEach((h, idx) => {
+        const hl = h.toLowerCase().replace(/[\/\s]/g, '');
+        if (hl.includes('category')) headerMap.category = idx;
+        else if (hl.includes('question')) headerMap.question = idx;
+        else if (hl.includes('response') || hl.includes('summary')) headerMap.summary = idx;
+        else if (hl.includes('next') && hl.includes('step')) headerMap.nextSteps = idx;
+        else if (hl.includes('keyword')) headerMap.keywords = idx;
+        else if (hl.includes('source') || hl.includes('link')) headerMap.source = idx;
+        else if (hl.includes('owner')) headerMap.owner = idx;
+        else if (hl.includes('review')) headerMap.lastReviewed = idx;
+        else if (hl.includes('tag')) headerMap.tags = idx;
     });
     
     const data = [];
     for (let i = 1; i < lines.length; i++) {
         try {
-            const values = parseCSVLine(lines[i]);
+            const vals = parseCSVLine(lines[i]);
             const row = {
-                category: (values[headerMap.category] || '').trim(),
-                question: (values[headerMap.question] || '').trim(),
-                summary: (values[headerMap.summary] || '').trim(),
-                nextSteps: (values[headerMap.nextSteps] || '').trim(),
-                keywords: (values[headerMap.keywords] || '').trim(),
-                source: (values[headerMap.source] || '').trim(),
-                owner: (values[headerMap.owner] || '').trim(),
-                lastReviewed: (values[headerMap.lastReviewed] || '').trim(),
-                tags: (values[headerMap.tags] || '').trim()
+                category: (vals[headerMap.category] || '').trim(),
+                question: (vals[headerMap.question] || '').trim(),
+                summary: (vals[headerMap.summary] || '').trim(),
+                nextSteps: (vals[headerMap.nextSteps] || '').trim(),
+                keywords: (vals[headerMap.keywords] || '').trim(),
+                source: (vals[headerMap.source] || '').trim(),
+                owner: (vals[headerMap.owner] || '').trim(),
+                lastReviewed: (vals[headerMap.lastReviewed] || '').trim(),
+                tags: (vals[headerMap.tags] || '').trim()
             };
-            
-            if (row.category && row.question) {
-                data.push(row);
-            }
-        } catch (error) {
-            console.warn(`⚠️ Skipping row ${i + 1}: ${error.message}`);
+            if (row.category && row.question) data.push(row);
+        } catch (e) {
+            console.warn(`Skip row ${i}: ${e.message}`);
         }
     }
-    
     return data;
 }
 
-/**
- * Parse CSV line with proper quote handling
- */
 function parseCSVLine(line) {
     const result = [];
-    let current = '';
-    let inQuotes = false;
-    
+    let current = '', inQuotes = false;
     for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        const next = line[i + 1];
-        
+        const char = line[i], next = line[i + 1];
         if (char === '"') {
-            if (inQuotes && next === '"') {
-                current += '"';
-                i++;
-            } else {
-                inQuotes = !inQuotes;
-            }
+            if (inQuotes && next === '"') { current += '"'; i++; }
+            else inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
             result.push(current);
             current = '';
@@ -279,75 +174,40 @@ function parseCSVLine(line) {
             current += char;
         }
     }
-    
     result.push(current);
-    
-    return result.map(val => {
-        let cleaned = val.trim();
-        if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
-            cleaned = cleaned.slice(1, -1);
-        }
-        return cleaned.replace(/""/g, '"');
+    return result.map(v => {
+        let c = v.trim();
+        if (c.startsWith('"') && c.endsWith('"')) c = c.slice(1, -1);
+        return c.replace(/""/g, '"');
     });
 }
-
-// ==========================================================================
-// Data Processing
-// ==========================================================================
 
 function processData(data) {
     state.allData = data;
     state.categories = {};
-    
     data.forEach(item => {
         const cat = item.category.trim();
-        if (!state.categories[cat]) {
-            state.categories[cat] = [];
-        }
+        if (!state.categories[cat]) state.categories[cat] = [];
         state.categories[cat].push(item);
     });
-    
     const sorted = {};
-    Object.keys(state.categories).sort().forEach(key => {
-        sorted[key] = state.categories[key];
-    });
+    Object.keys(state.categories).sort().forEach(k => { sorted[k] = state.categories[k]; });
     state.categories = sorted;
-    
-    console.log(`📊 Processed: ${data.length} questions across ${Object.keys(state.categories).length} categories`);
+    console.log(`📊 Processed: ${data.length} questions, ${Object.keys(state.categories).length} categories`);
 }
 
-// ==========================================================================
-// ✅ EDUCATOR-OPTIMIZED RENDERING
-// ==========================================================================
-
 function renderCategories() {
-    const html = Object.entries(state.categories).map(([category, items], idx) => {
-        const icon = category.includes('/') 
-            ? category.split('/')[0].trim().charAt(0).toUpperCase()
-            : category.charAt(0).toUpperCase();
-        const count = items.length;
-        
-        return `
-            <div class="category-card" data-category="${category}" style="animation-delay: ${idx * 0.05}s">
-                <div class="category-icon">${icon}</div>
-                <div class="category-name">${category}</div>
-                <div class="category-count">${count} question${count !== 1 ? 's' : ''}</div>
-            </div>
-        `;
+    const html = Object.entries(state.categories).map(([cat, items], idx) => {
+        const icon = cat.includes('/') ? cat.split('/')[0].trim()[0].toUpperCase() : cat[0].toUpperCase();
+        return `<div class="category-card" data-category="${cat}" style="animation-delay:${idx*0.05}s"><div class="category-icon">${icon}</div><div class="category-name">${cat}</div><div class="category-count">${items.length} question${items.length!==1?'s':''}</div></div>`;
     }).join('');
-    
     elements.categoryGrid.innerHTML = html;
-    
-    document.querySelectorAll('.category-card').forEach(card => {
-        card.addEventListener('click', () => showCategoryQuestions(card.dataset.category));
-    });
+    document.querySelectorAll('.category-card').forEach(c => c.addEventListener('click', () => showCategoryQuestions(c.dataset.category)));
 }
 
 function showCategoryQuestions(category) {
     state.currentCategory = category;
-    state.currentView = 'questions';
     const questions = state.categories[category];
-    
     elements.categorySection.style.display = 'none';
     elements.questionsSection.style.display = 'block';
     elements.categoryTitle.textContent = category;
@@ -355,22 +215,10 @@ function showCategoryQuestions(category) {
     
     const html = questions.map((item, idx) => {
         const dataIndex = state.allData.indexOf(item);
-        return `
-            <button class="question-chip" data-index="${dataIndex}" style="animation-delay: ${idx * 0.04}s">
-                ${item.question}
-            </button>
-        `;
+        return `<button class="question-chip" data-index="${dataIndex}" style="animation-delay:${idx*0.04}s">${item.question}</button>`;
     }).join('');
-    
     elements.questionChips.innerHTML = html;
-    
-    document.querySelectorAll('.question-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-            const idx = parseInt(chip.dataset.index);
-            showResult([state.allData[idx]]);
-        });
-    });
-    
+    document.querySelectorAll('.question-chip').forEach(c => c.addEventListener('click', () => showResult([state.allData[parseInt(c.dataset.index)]])));
     updateConnorTip(category);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -381,62 +229,20 @@ function showResult(results) {
         elements.emptyState.style.display = 'block';
         return;
     }
-    
     elements.emptyState.style.display = 'none';
     
     const html = results.map((item, idx) => {
         const nextSteps = parseNextSteps(item.nextSteps);
         const resources = parseResources(item.source);
-        
-        return `
-            <div class="result-card" style="animation-delay: ${idx * 0.05}s">
-                <div class="result-header">
-                    <span class="result-category-badge">${item.category}</span>
-                    <h3 class="result-question">${item.question}</h3>
-                </div>
-                
-                <div class="result-summary">${item.summary}</div>
-                
-                ${nextSteps.length > 0 ? `
-                    <div class="result-next-steps">
-                        <h4>✅ Next Steps</h4>
-                        <ul>${nextSteps.map(step => `<li>${step}</li>`).join('')}</ul>
-                    </div>
-                ` : ''}
-                
-                ${resources.length > 0 ? `
-                    <div class="result-resources">
-                        <h4>📚 Resources & Links</h4>
-                        <div class="resource-links">
-                            ${resources.map(res => `
-                                <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="resource-link">
-                                    ${res.label}
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                        <polyline points="15 3 21 3 21 9"/>
-                                        <line x1="10" y1="14" x2="21" y2="3"/>
-                                    </svg>
-                                </a>
-                            `).join('')}
-                        </div>
-                    </div>
-                ` : ''}
-                
-                <div class="result-footer">
-                    ${item.owner ? `<span class="result-owner">👤 ${item.owner}</span>` : ''}
-                    ${item.lastReviewed ? `<span class="result-reviewed">📅 Updated ${item.lastReviewed}</span>` : ''}
-                </div>
-            </div>
-        `;
+        return `<div class="result-card" style="animation-delay:${idx*0.05}s"><div class="result-header"><span class="result-category-badge">${item.category}</span><h3 class="result-question">${item.question}</h3></div><div class="result-summary">${item.summary}</div>${nextSteps.length>0?`<div class="result-next-steps"><h4>✅ Next Steps</h4><ul>${nextSteps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}\n${resources.length>0?`<div class="result-resources"><h4>📚 Resources & Links</h4><div class="resource-links">${resources.map(r=>`<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="resource-link">${r.label}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`).join('')}</div></div>`:''}<div class="result-footer">${item.owner?`<span class="result-owner">👤 ${item.owner}</span>`:''}${item.lastReviewed?`<span class="result-reviewed">📅 Updated ${item.lastReviewed}</span>`:''}</div></div>`;
     }).join('');
-    
     elements.resultsContainer.innerHTML = html;
     setTimeout(() => elements.resultsSection.scrollIntoView({ behavior: 'smooth' }), 100);
 }
 
 function parseNextSteps(text) {
     if (!text) return [];
-    return text.split(/\n|•|[-–—]/).map(s => s.trim()).filter(s => s.length > 0 && s.length < 500);
+    return text.split(/\n|•|[-–—]/).map(s => s.trim()).filter(s => s.length > 0);
 }
 
 function parseResources(text) {
@@ -444,11 +250,10 @@ function parseResources(text) {
     const resources = [];
     text.split(/\n/).forEach(line => {
         line = line.trim();
+        if (!line) return;
         if (line.includes('|')) {
             const [label, url] = line.split('|').map(s => s.trim());
-            if (url && isValidUrl(url)) {
-                resources.push({ label: label || 'Resource', url });
-            }
+            if (url && isValidUrl(url)) resources.push({ label: label || 'Resource', url });
         } else if (isValidUrl(line)) {
             resources.push({ label: 'View Resource', url: line });
         }
@@ -457,57 +262,24 @@ function parseResources(text) {
 }
 
 function isValidUrl(str) {
-    try {
-        const url = new URL(str);
-        return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch { return false; }
+    try { const url = new URL(str); return url.protocol === 'http:' || url.protocol === 'https:'; }
+    catch { return false; }
 }
 
-// ==========================================================================
-// Search
-// ==========================================================================
-
 function performSearch(query) {
-    if (!query || query.length < 2) {
-        elements.searchResults.classList.remove('active');
-        return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const results = state.allData.filter(item => 
-        item.question.toLowerCase().includes(lowerQuery) ||
-        item.keywords.toLowerCase().includes(lowerQuery) ||
-        item.category.toLowerCase().includes(lowerQuery) ||
-        item.summary.toLowerCase().includes(lowerQuery) ||
-        item.tags.toLowerCase().includes(lowerQuery)
-    );
-    
+    if (!query || query.length < 2) { elements.searchResults.classList.remove('active'); return; }
+    const lq = query.toLowerCase();
+    const results = state.allData.filter(i => i.question.toLowerCase().includes(lq) || i.keywords.toLowerCase().includes(lq) || i.category.toLowerCase().includes(lq) || i.summary.toLowerCase().includes(lq) || i.tags.toLowerCase().includes(lq));
     renderSearchResults(results.slice(0, 10));
 }
 
 function renderSearchResults(results) {
-    if (results.length === 0) {
-        elements.searchResults.classList.remove('active');
-        return;
-    }
-    
-    const html = results.map((item, idx) => `
-        <div class="search-result-item" data-index="${state.allData.indexOf(item)}">
-            <div class="search-result-question">${item.question}</div>
-            <div class="search-result-category">${item.category}</div>
-        </div>
-    `).join('');
-    
+    if (results.length === 0) { elements.searchResults.classList.remove('active'); return; }
+    const html = results.map(i => `<div class="search-result-item" data-index="${state.allData.indexOf(i)}"><div class="search-result-question">${i.question}</div><div class="search-result-category">${i.category}</div></div>`).join('');
     elements.searchResults.innerHTML = html;
     elements.searchResults.classList.add('active');
     state.selectedSearchIndex = -1;
-    
-    document.querySelectorAll('.search-result-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const idx = parseInt(item.dataset.index);
-            selectSearchResult(state.allData[idx]);
-        });
-    });
+    document.querySelectorAll('.search-result-item').forEach(i => i.addEventListener('click', () => selectSearchResult(state.allData[parseInt(i.dataset.index)])));
 }
 
 function selectSearchResult(item) {
@@ -521,39 +293,18 @@ function selectSearchResult(item) {
 function handleSearchKeyboard(e) {
     const results = document.querySelectorAll('.search-result-item');
     if (results.length === 0) return;
-    
-    if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        state.selectedSearchIndex = Math.min(state.selectedSearchIndex + 1, results.length - 1);
-        updateSearchSelection(results);
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        state.selectedSearchIndex = Math.max(state.selectedSearchIndex - 1, -1);
-        updateSearchSelection(results);
-    } else if (e.key === 'Enter') {
-        e.preventDefault();
-        const idx = state.selectedSearchIndex >= 0 ? state.selectedSearchIndex : 0;
-        const dataIndex = parseInt(results[idx].dataset.index);
-        selectSearchResult(state.allData[dataIndex]);
-    } else if (e.key === 'Escape') {
-        elements.searchResults.classList.remove('active');
-    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); state.selectedSearchIndex = Math.min(state.selectedSearchIndex + 1, results.length - 1); updateSearchSelection(results); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); state.selectedSearchIndex = Math.max(state.selectedSearchIndex - 1, -1); updateSearchSelection(results); }
+    else if (e.key === 'Enter') { e.preventDefault(); const idx = state.selectedSearchIndex >= 0 ? state.selectedSearchIndex : 0; selectSearchResult(state.allData[parseInt(results[idx].dataset.index)]); }
+    else if (e.key === 'Escape') { elements.searchResults.classList.remove('active'); }
 }
 
 function updateSearchSelection(results) {
-    results.forEach((result, idx) => {
-        if (idx === state.selectedSearchIndex) {
-            result.classList.add('selected');
-            result.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        } else {
-            result.classList.remove('selected');
-        }
+    results.forEach((r, idx) => {
+        if (idx === state.selectedSearchIndex) { r.classList.add('selected'); r.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+        else { r.classList.remove('selected'); }
     });
 }
-
-// ==========================================================================
-// Connor Bot
-// ==========================================================================
 
 function updateConnorTip(category) {
     const tip = CONFIG.CONNOR_TIPS[category] || CONFIG.CONNOR_TIPS.default;
@@ -562,36 +313,23 @@ function updateConnorTip(category) {
     setTimeout(() => elements.connorTip.classList.add('show'), 100);
 }
 
-// ==========================================================================
-// Event Listeners
-// ==========================================================================
-
 function initEventListeners() {
-    elements.searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim();
-        if (query) {
-            elements.clearSearch.style.display = 'flex';
-            performSearch(query);
-        } else {
-            elements.clearSearch.style.display = 'none';
-            elements.searchResults.classList.remove('active');
-        }
+    elements.searchInput.addEventListener('input', e => {
+        const q = e.target.value.trim();
+        if (q) { elements.clearSearch.style.display = 'flex'; performSearch(q); }
+        else { elements.clearSearch.style.display = 'none'; elements.searchResults.classList.remove('active'); }
     });
-    
     elements.searchInput.addEventListener('keydown', handleSearchKeyboard);
-    
     elements.clearSearch.addEventListener('click', () => {
         elements.searchInput.value = '';
         elements.clearSearch.style.display = 'none';
         elements.searchResults.classList.remove('active');
     });
-    
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
         if (!e.target.closest('.search-wrapper') && !e.target.closest('.search-autocomplete')) {
             elements.searchResults.classList.remove('active');
         }
     });
-    
     elements.backBtn.addEventListener('click', () => {
         state.currentCategory = null;
         elements.questionsSection.style.display = 'none';
@@ -601,21 +339,15 @@ function initEventListeners() {
         updateConnorTip('default');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    
     elements.refreshBtn.addEventListener('click', async () => {
         elements.refreshBtn.disabled = true;
+        elements.refreshBtn.style.opacity = '0.6';
         await loadData();
         elements.refreshBtn.disabled = false;
+        elements.refreshBtn.style.opacity = '1';
     });
-    
-    document.querySelector('.connor-avatar').addEventListener('click', () => {
-        elements.connorTip.classList.toggle('show');
-    });
+    document.querySelector('.connor-avatar').addEventListener('click', () => elements.connorTip.classList.toggle('show'));
 }
-
-// ==========================================================================
-// ✅ INITIALIZATION - PRODUCTION READY
-// ==========================================================================
 
 async function loadData() {
     try {
@@ -624,57 +356,26 @@ async function loadData() {
         elements.questionsSection.style.display = 'none';
         elements.emptyState.style.display = 'none';
         
+        console.log('\n🚀 Ask Connor - Loading from Google Sheets...');
         const data = await fetchSheetData();
         processData(data);
         renderCategories();
         
         elements.loadingState.style.display = 'none';
         elements.categorySection.style.display = 'block';
-        
         setTimeout(() => elements.connorTip.classList.add('show'), 1500);
-        
-        console.log('🎉 NJTC Ask Connor loaded successfully!');
-        
+        console.log('✅ Loaded successfully!\n');
     } catch (error) {
-        console.error('❌ Load failed:', error);
-        elements.loadingState.innerHTML = `
-            <div style="text-align: center; padding: 3rem 1.5rem; max-width: 700px; margin: 0 auto;">
-                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                <h2 style="color: #FF6B6B; margin: 1.5rem 0 1rem; font-family: var(--font-display);">Unable to Load Data</h2>
-                <p style="color: #5A6B7A; margin-bottom: 2rem; line-height: 1.6;">
-                    Could not access your Google Sheet. Please ensure:
-                </p>
-                <ol style="text-align: left; color: #5A6B7A; line-height: 2; max-width: 500px; margin: 0 auto 2rem;">
-                    <li>Sheet is shared as "Anyone with the link can view"</li>
-                    <li>Sheet ID is correct in app.js</li>
-                    <li>Sheet has proper column headers</li>
-                </ol>
-                <button onclick="location.reload()" style="padding: 1rem 2rem; background: #003366; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 1rem;">
-                    🔄 Retry
-                </button>
-                <p style="color: #7B8A99; margin-top: 1.5rem; font-size: 0.875rem;">
-                    Press F12 to open console for detailed error information
-                </p>
-            </div>
-        `;
+        console.error('❌ Load failed:', error.message);
+        elements.loadingState.innerHTML = `<div style="text-align:center;padding:3rem 1.5rem;max-width:700px;margin:0 auto"><svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h2 style="color:#FF6B6B;margin:1.5rem 0 1rem;font-family:var(--font-display)">Unable to Load Data</h2><p style="color:#5A6B7A;margin-bottom:2rem">Could not access Google Sheet. Please make it public:</p><div style="background:#F8FAFB;padding:2rem;border-radius:12px;margin-bottom:2rem;border:2px solid #E4E9ED"><ol style="color:#5A6B7A;line-height:2;padding-left:1.5rem"><li><strong>Open:</strong> <a href="https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/edit" target="_blank" style="color:#FFB81C">Your Sheet</a></li><li><strong>Share:</strong> Click "Share" → "Anyone with link" → "Viewer"</li><li><strong>Or Publish:</strong> File → Share → Publish to web</li><li><strong>Refresh</strong> this page</li></ol></div><button onclick="location.reload()" style="padding:1rem 2rem;background:#003366;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600">🔄 Try Again</button></div>`;
     }
 }
 
 function init() {
-    console.log('🚀 Ask Connor - NJTC Knowledge Base v1.0');
-    console.log('📌 Sheet ID:', CONFIG.SHEET_ID);
-    console.log('📌 Published ID:', CONFIG.PUBLISHED_ID);
-    console.log('📌 GID:', CONFIG.GID);
+    console.log('🎯 Initializing...');
     initEventListeners();
     loadData();
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
