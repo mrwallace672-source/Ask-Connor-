@@ -1,9 +1,9 @@
 /* ============================================================================
-   Ask Connor - FINAL PRECISION VERSION
-   🎯 STOPS AT BLANK CATEGORIES - ONLY READS VALID ROWS
+   Ask Connor - ABSOLUTE FINAL FIX
+   🎯 USES GOOGLE VISUALIZATION API - NO CSV PARSING ISSUES
    
-   YOUR SHEET: 37 questions across 8 categories
-   Rule: If Column A (Category) is blank → STOP reading
+   Switches from CSV export to Google Visualization JSON API
+   This handles multi-line cells correctly!
    ============================================================================ */
 
 const CONFIG = {
@@ -72,16 +72,23 @@ const el = {
 };
 
 async function fetchData() {
-    console.log('🔍 Fetching from sheet...');
-    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=csv&gid=${CONFIG.GID}`;
+    console.log('🔍 Fetching using Google Visualization API...');
+    
+    // USE GVIZ API - handles multi-line cells correctly!
+    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${CONFIG.GID}&tqx=out:json`;
     
     try {
         const r = await fetch(url, {method:'GET', mode:'cors', cache:'no-cache'});
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const text = await r.text();
-        if (!text || !text.trim()) throw new Error('Empty response');
         
-        const data = parseCSV(text);
+        // Parse GVIZ JSON response
+        const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\);?$/);
+        if (!match) throw new Error('Invalid GVIZ response');
+        
+        const json = JSON.parse(match[1]);
+        const data = parseGViz(json);
+        
         console.log(`✅ Loaded ${data.length} valid questions`);
         return data;
     } catch (e) {
@@ -90,90 +97,62 @@ async function fetchData() {
     }
 }
 
-function parseCSV(text) {
-    const lines = text.split(/\r?\n/).filter(l => l.trim());
-    if (lines.length < 2) throw new Error('No data rows');
+function parseGViz(jsonData) {
+    const table = jsonData.table;
+    const cols = table.cols;
+    const rows = table.rows;
     
     const data = [];
     
-    // Skip header row (row 0)
-    for (let i = 1; i < lines.length; i++) {
-        const cols = parseLine(lines[i]);
+    // Process each row (skip header row 0)
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.c || [];
         
-        // CRITICAL: Column A (index 0) must have a category
-        const category = (cols[0] || '').trim();
+        // Extract values from cells
+        // GVIZ format: each cell is {v: value, f: formatted}
+        const getValue = (cell) => {
+            if (!cell) return '';
+            return (cell.v || cell.f || '').toString().trim();
+        };
         
-        // STOP IF NO CATEGORY - this prevents reading extra rows
+        const category = getValue(cells[0]);      // Column A
+        const question = getValue(cells[1]);      // Column B
+        
+        // STOP if no category
         if (!category) {
-            console.log(`⏹️ Stopped at row ${i+1} - no category found`);
+            console.log(`⏹️ Stopped at row ${i+2} - no category`);
             break;
         }
         
-        // Column B (index 1) must have a question
-        const question = (cols[1] || '').trim();
-        
-        // Only include rows with BOTH category AND question
+        // Skip if no question
         if (!question) {
-            console.log(`⚠️ Skipped row ${i+1} - has category "${category}" but no question`);
+            console.log(`⚠️ Skipped row ${i+2} - category "${category}" but no question`);
             continue;
         }
         
-        // PRECISE COLUMN MAPPING (0-indexed)
+        // Build complete row object
         data.push({
-            category: category,                    // A (0)
-            question: question,                    // B (1)
-            summary: (cols[2] || '').trim(),       // C (2)
-            nextSteps: (cols[3] || '').trim(),     // D (3)
-            keywords: (cols[4] || '').trim(),      // E (4)
-            source: (cols[5] || '').trim(),        // F (5)
-            owner: (cols[6] || '').trim(),         // G (6)
-            lastReviewed: (cols[7] || '').trim(),  // H (7)
-            tags: (cols[8] || '').trim()           // I (8)
+            category: category,
+            question: question,
+            summary: getValue(cells[2]),       // Column C
+            nextSteps: getValue(cells[3]),     // Column D
+            keywords: getValue(cells[4]),      // Column E
+            source: getValue(cells[5]),        // Column F
+            owner: getValue(cells[6]),         // Column G
+            lastReviewed: getValue(cells[7]),  // Column H
+            tags: getValue(cells[8])           // Column I
         });
     }
     
     return data;
 }
 
-function parseLine(line) {
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        const next = line[i + 1];
-        
-        if (char === '"') {
-            if (inQuotes && next === '"') {
-                current += '"';
-                i++;
-            } else {
-                inQuotes = !inQuotes;
-            }
-        } else if (char === ',' && !inQuotes) {
-            result.push(current);
-            current = '';
-        } else {
-            current += char;
-        }
-    }
-    result.push(current);
-    
-    return result.map(v => {
-        let clean = v.trim();
-        if (clean.startsWith('"') && clean.endsWith('"')) {
-            clean = clean.slice(1, -1);
-        }
-        return clean.replace(/""/g, '"');
-    });
-}
-
 function process(data) {
     state.data = data;
     state.categories = {};
     
-    // Group by Category (Column A)
+    // Group by Category
     data.forEach(item => {
         const cat = item.category.trim();
         if (!state.categories[cat]) {
@@ -182,7 +161,7 @@ function process(data) {
         state.categories[cat].push(item);
     });
     
-    // Sort categories alphabetically
+    // Sort categories
     const sorted = {};
     Object.keys(state.categories).sort().forEach(k => {
         sorted[k] = state.categories[k];
@@ -362,7 +341,6 @@ function showRes(results) {
     
     el.resContainer.innerHTML = html;
     
-    // Attach event listeners
     document.querySelectorAll('.feedback-btn.helpful, .feedback-btn.not-helpful').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
