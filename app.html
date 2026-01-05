@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ask Connor | New Jersey Tutoring Corps</title>
-    <meta name="description" content="NJTC High-Impact Tutoring Knowledge Base">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +11,6 @@
 </head>
 <body>
     
-    <!-- PREMIUM HEADER -->
     <header class="premium-header">
         <div class="container">
             <div class="header-content">
@@ -26,7 +24,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="header-actions">
                     <div class="user-role" id="roleDisplay" style="display:none;"></div>
                     <button id="homeBtn" class="premium-btn home-btn">
@@ -56,7 +53,6 @@
         </div>
     </header>
 
-    <!-- ANALYTICS DASHBOARD -->
     <section class="analytics-dashboard" id="analyticsDash">
         <div class="container">
             <div class="analytics-grid">
@@ -85,24 +81,15 @@
         </div>
     </section>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
         <div class="container">
-            
-            <!-- SEARCH -->
             <section class="search-hero">
                 <div class="search-wrapper premium-glass">
                     <svg class="search-icon-premium" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <input 
-                        type="search" 
-                        id="searchInput" 
-                        class="search-input-premium"
-                        placeholder="Search questions, keywords, or topics..."
-                        autocomplete="off"
-                    >
+                    <input type="search" id="searchInput" class="search-input-premium" placeholder="Search questions, keywords, or topics..." autocomplete="off">
                     <button id="clearSearch" class="clear-btn-premium" style="display:none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -113,7 +100,6 @@
                 <div id="searchResults" class="search-autocomplete-premium"></div>
             </section>
 
-            <!-- CATEGORIES -->
             <section id="categorySection" class="category-section-premium">
                 <div class="section-header">
                     <h2 class="section-title-premium">Explore by Category</h2>
@@ -122,7 +108,6 @@
                 <div id="categoryGrid" class="category-grid-premium"></div>
             </section>
 
-            <!-- QUESTIONS -->
             <section id="questionsSection" class="questions-section-premium" style="display:none;">
                 <div class="questions-header-premium">
                     <button id="backBtn" class="back-btn-premium">
@@ -136,12 +121,10 @@
                 <div id="questionChips" class="question-chips-premium"></div>
             </section>
 
-            <!-- RESULTS -->
             <section id="resultsSection" class="results-section-premium">
                 <div id="resultsContainer" class="results-container-premium"></div>
             </section>
 
-            <!-- LOADING -->
             <div id="loadingState" class="loading-state-premium">
                 <div class="loading-spinner-premium">
                     <div class="spinner-ring"></div>
@@ -151,7 +134,6 @@
                 <p class="loading-text">Loading knowledge base...</p>
             </div>
 
-            <!-- EMPTY -->
             <div id="emptyState" class="empty-state-premium" style="display:none;">
                 <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="11" cy="11" r="8"/>
@@ -160,11 +142,9 @@
                 <h3>No results found</h3>
                 <p>Try different keywords or browse by category</p>
             </div>
-
         </div>
     </main>
 
-    <!-- CONNOR BOT -->
     <div id="connorBot" class="connor-bot-premium">
         <div class="connor-avatar-premium connor-avatar">
             <div class="avatar-glow"></div>
@@ -177,22 +157,22 @@
         </div>
     </div>
 
-    <!-- FLOATING FEEDBACK BUTTON -->
-    <button id="feedbackFloatingBtn" class="feedback-floating-btn">
+    <!-- FLOATING BUTTON -->
+    <button id="feedbackFloatingBtn" class="feedback-floating-btn" onclick="openFeedbackModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
         <span>Request Assistance</span>
     </button>
 
-    <!-- FEEDBACK MODAL -->
-    <div id="feedbackModal" class="feedback-modal" style="display:none;">
+    <!-- FEEDBACK MODAL (HIDDEN BY DEFAULT) -->
+    <div id="feedbackModal" class="feedback-modal" style="display:none;" onclick="if(event.target===this) closeFeedbackModal()">
         <div class="feedback-modal-content">
             <div class="feedback-modal-header">
                 <div class="feedback-icon-large">💬</div>
                 <h2>We're Here to Support You</h2>
                 <p>Your feedback helps us provide immediate assistance</p>
-                <button class="modal-close">×</button>
+                <button class="modal-close" onclick="closeFeedbackModal()">×</button>
             </div>
             
             <div class="feedback-modal-body">
@@ -201,7 +181,7 @@
                     <p id="fb-current-question">General feedback</p>
                 </div>
                 
-                <form id="connorFeedbackForm">
+                <form id="connorFeedbackForm" onsubmit="handleFeedbackSubmit(event)">
                     <div class="form-group">
                         <label for="fb-name">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -347,6 +327,5 @@
     </div>
 
     <script src="app.js"></script>
-    
 </body>
 </html>
